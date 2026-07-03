@@ -1,7 +1,8 @@
-﻿using BuildingBlocks.Resilience.Options;
+﻿
+using BuildingBlocks.Resilience.Options;
 using Microsoft.Extensions.Http.Resilience;
 
-namespace BuildingBlocks.Resilience.Strategies;
+namespace BuildingBlocks.Resilience;
 
 internal static class TimeoutStrategy
 {

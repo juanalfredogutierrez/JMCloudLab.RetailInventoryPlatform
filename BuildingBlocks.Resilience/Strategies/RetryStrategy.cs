@@ -1,8 +1,9 @@
-﻿using BuildingBlocks.Resilience.Options;
+﻿
+using BuildingBlocks.Resilience.Options;
 using Microsoft.Extensions.Http.Resilience;
 using Polly;
 
-namespace BuildingBlocks.Resilience.Strategies;
+namespace BuildingBlocks.Resilience;
 
 internal static class RetryStrategy
 {
