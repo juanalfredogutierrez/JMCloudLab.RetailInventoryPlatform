@@ -1,12 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using BuildingBlocks.Resilience.Options;
+using Microsoft.Extensions.Http.Resilience;
+using Polly;
 
-namespace BuildingBlocks.Resilience.Strategies
+namespace BuildingBlocks.Resilience.Strategies;
+
+internal static class RetryStrategy
 {
-    internal class RetryStrategy
+    public static void Configure(HttpRetryStrategyOptions options, RetryOptions retryOptions)
     {
+        options.MaxRetryAttempts = retryOptions.MaxRetryAttempts;
+        options.Delay = TimeSpan.FromSeconds(retryOptions.DelayInSeconds);
+
+        options.BackoffType = retryOptions.UseExponentialBackoff
+                                        ? DelayBackoffType.Exponential
+                                        : DelayBackoffType.Constant;
+
+        options.UseJitter = true;
     }
 }
