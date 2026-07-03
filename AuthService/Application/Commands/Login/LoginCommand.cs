@@ -1,5 +1,4 @@
-﻿using BuildingBlocks.Application;
-using MediatR;
+﻿using MediatR;
 
 namespace AuthService.Application.Commands.Login;
 

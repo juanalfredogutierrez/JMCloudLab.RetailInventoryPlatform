@@ -22,30 +22,22 @@ public class LoginHandler: IRequestHandler<LoginCommand, Result<string>>
     public async Task<Result<string>> Handle(LoginCommand request,CancellationToken cancellationToken)
     {
         var user = await _context.Usuarios
-            .Include(x => x.Rol)
-            .FirstOrDefaultAsync(
-                x => x.NombreUsuario == request.Username,
-                cancellationToken);
+                         .Include(x => x.Rol)
+                         .FirstOrDefaultAsync( x => x.NombreUsuario == request.Username,cancellationToken);
 
         if (user is null)
         {
-            _logger.LogBusiness(
-                $"Login fallido para {request.Username}. Usuario no encontrado.");
+            _logger.LogBusiness($"Login fallido para {request.Username}. Usuario no encontrado.");
 
-            return Result<string>.Failure(
-                Errors.Unauthorized("Credenciales inválidas"));
+            return Result<string>.Failure(Errors.Unauthorized("Credenciales inválidas"));
         }
 
         if (!user.Activo)
         {
-            _logger.LogBusiness(
-                $"Login fallido para {request.Username}. Usuario inactivo.");
+            _logger.LogBusiness($"Login fallido para {request.Username}. Usuario inactivo.");
 
-            return Result<string>.Failure(
-                Errors.Unauthorized("Usuario inactivo"));
+            return Result<string>.Failure(Errors.Unauthorized("Usuario inactivo"));
         }
-
-
 
         var verificationResult = _passwordHasher.VerifyHashedPassword(
             user,
@@ -54,20 +46,18 @@ public class LoginHandler: IRequestHandler<LoginCommand, Result<string>>
 
         if (verificationResult == PasswordVerificationResult.Failed)
         {
-            _logger.LogBusiness(
-                $"Login fallido para {request.Username}. Contraseña inválida.");
+            _logger.LogBusiness($"Login fallido para {request.Username}. Contraseña inválida.");
 
-            return Result<string>.Failure(
-                Errors.Unauthorized("Credenciales inválidas"));
+            return Result<string>.Failure(Errors.Unauthorized("Credenciales inválidas"));
         }
 
         var token = _jwt.GenerateToken(
             user.Id,
             user.NombreUsuario,
+            user.CorreoElectronico,
             user.Rol.Nombre);
 
-        _logger.LogBusiness(
-            $"Usuario {request.Username} autenticado");
+        _logger.LogBusiness($"Usuario {request.Username} autenticado");
 
         return token;
     }

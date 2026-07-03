@@ -26,19 +26,19 @@ public class ProductoController : ControllerBase
     }
 
     [HttpGet]
-     public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll()
     {
         var result = await _mediator.Send(new GetProductosQuery());
 
         return this.ToActionResult(result);
     }
 
-        [HttpPut("actualizar-costo")]
-        public async Task<IActionResult> ActualizarCosto(
-        ActualizarCostoProductoCommand command)
-        {
-            var result = await _mediator.Send(command);
+    [HttpPut("actualizar-costo")]
+    public async Task<IActionResult> ActualizarCosto(
+    ActualizarCostoProductoCommand command)
+    {
+        var result = await _mediator.Send(command);
 
-            return this.ToActionResult(result);
-        }
+        return this.ToActionResult(result);
+    }
 }

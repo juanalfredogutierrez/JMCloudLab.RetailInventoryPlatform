@@ -15,13 +15,14 @@ public class JwtTokenGenerator
         _options = options.Value;
     }
 
-    public string GenerateToken(int userId, string userName, string role)
+    public string GenerateToken(int userId, string userName, string correoElectronico, string role)
     {
         var claims = new[]
         {
-            new Claim("UserId", userId.ToString()),
-            new Claim("UserName", userName),
-            new Claim("Role", role)
+            new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
+            new Claim(JwtRegisteredClaimNames.UniqueName, userName),
+            new Claim(JwtRegisteredClaimNames.Email, correoElectronico),
+            new Claim("role", role)
         };
 
         var key = new SymmetricSecurityKey(

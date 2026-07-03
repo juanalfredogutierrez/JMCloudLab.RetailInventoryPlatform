@@ -179,6 +179,14 @@ Benefits:
 
 * JWT Authentication
 * Role-Based Authorization
+* ## Authentication
+
+JWT tokens include the following claims:
+
+- sub
+- unique_name
+- email
+- role
 
 ### Infrastructure
 
@@ -364,6 +372,7 @@ docker compose down
 * Automatic Seed Data
 * Unit Testing
 * Centralized BuildingBlocks
+* Serilog + Seq
 
 ---
 
@@ -380,7 +389,7 @@ v1.2.0 Outbox Pattern & Distributed Trace Propagation
 
 # Future Improvements
 
-* Serilog + Seq
+
 * OpenTelemetry
 * Distributed Metrics
 * Dead Letter Queue (DLQ)

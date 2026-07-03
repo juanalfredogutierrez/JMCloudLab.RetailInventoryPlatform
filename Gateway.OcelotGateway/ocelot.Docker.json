@@ -10,7 +10,7 @@
         }
       ],
       "UpstreamPathTemplate": "/auth/{everything}",
-      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ]
+      "UpstreamHttpMethod": ["POST"]
     },
 
     {
@@ -23,7 +23,7 @@
         }
       ],
       "UpstreamPathTemplate": "/productos/{everything}",
-      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer"
       }
@@ -39,7 +39,7 @@
         }
       ],
       "UpstreamPathTemplate": "/transacciones/{everything}",
-      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "UpstreamHttpMethod": [ "POST"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer"
       }
@@ -55,7 +55,7 @@
         }
       ],
       "UpstreamPathTemplate": "/inventario/{everything}",
-      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "UpstreamHttpMethod": [ "GET", "POST"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer"
       }
