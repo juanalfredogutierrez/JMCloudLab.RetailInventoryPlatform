@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BuildingBlocks.Resilience.Policies
+namespace BuildingBlocks.Resilience.Strategies
 {
-    internal class TimeoutPolicyFactory
+    internal class CircuitBreakerStrategy
     {
     }
 }
