@@ -24,6 +24,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\BuildingBlocks.Resilience\BuildingBlocks.Resilience.csproj" />
 		<ProjectReference Include="..\BuildingBlocks\BuildingBlocks.csproj" />
 	</ItemGroup>
 
