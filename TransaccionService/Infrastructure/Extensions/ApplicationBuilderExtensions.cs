@@ -1,18 +1,22 @@
-﻿namespace TransaccionService.Infrastructure.Extensions
+﻿using BuildingBlocks.Observability.Extensions;
+
+namespace TransaccionService.Infrastructure.Extensions;
+
+public static class ApplicationBuilderExtensions
 {
-    public static class ApplicationBuilderExtensions
+    public static WebApplication UseApi(this WebApplication app)
     {
-        public static WebApplication UseApi(this WebApplication app)
-        {
-            app.UseSwagger();
-            app.UseSwaggerUI();
+        app.UseSwagger();
+        app.UseSwaggerUI();
 
-            app.UseMiddleware<CorrelationMiddleware>();
-            app.UseMiddleware<ExceptionMiddleware>();
+        app.UseMiddleware<CorrelationMiddleware>();
 
-            app.MapControllers();
+        app.UseBuildingBlockObservability();
 
-            return app;
-        }
+        app.UseMiddleware<ExceptionMiddleware>();
+
+        app.MapControllers();
+
+        return app;
     }
 }
