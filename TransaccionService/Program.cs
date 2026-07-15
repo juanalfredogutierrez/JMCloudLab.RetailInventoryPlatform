@@ -4,6 +4,7 @@ var builder = WebApplication.CreateBuilder(args);
 StartupConsoleExtensions.PrintStartupInfo(builder.Environment.ApplicationName,
                                           builder.Environment.EnvironmentName,
                                           builder.Configuration);
+
 builder.Host.AddBuildingBlockObservability();
 
 builder.Services

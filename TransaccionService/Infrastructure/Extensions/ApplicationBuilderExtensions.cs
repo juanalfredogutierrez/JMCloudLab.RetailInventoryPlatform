@@ -9,11 +9,8 @@ public static class ApplicationBuilderExtensions
         app.UseSwagger();
         app.UseSwaggerUI();
 
-        app.UseMiddleware<CorrelationMiddleware>();
-
-        app.UseBuildingBlockObservability();
-
         app.UseMiddleware<ExceptionMiddleware>();
+        app.UseBuildingBlockObservability();
 
         app.MapControllers();
 

@@ -1,12 +1,3 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Runtime.CompilerServices;
 
-namespace BuildingBlocks.OpenTelemetry
-{
-    internal class AssemblyInfo
-    {
-    }
-}
+[assembly: InternalsVisibleTo("BuildingBlocks.Observability.Tests")]
