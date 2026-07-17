@@ -37,7 +37,7 @@ public sealed class OutboxPublisherWorker : BackgroundService
 
     private async Task ProcesarMensajes(CancellationToken cancellationToken)
     {
-        using var scope = _scopeFactory.CreateScope();
+        await using var scope = _scopeFactory.CreateAsyncScope();
         var context = scope.ServiceProvider.GetRequiredService<TransaccionDbContext>();
         var publisher = scope.ServiceProvider.GetRequiredService<IMessagePublisher>();
 

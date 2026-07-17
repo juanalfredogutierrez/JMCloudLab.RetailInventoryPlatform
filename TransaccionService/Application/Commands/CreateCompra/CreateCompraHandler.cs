@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using TransaccionService.Domain.Entities;
 using TransaccionService.Domain.Events;
-
+using BuildingBlocks.Observability.Services;
 namespace TransaccionService.Application.Commands.CreateCompra;
 
 public class CreateCompraHandler : IRequestHandler<CreateCompraCommand, Result<Guid>>
@@ -9,15 +9,17 @@ public class CreateCompraHandler : IRequestHandler<CreateCompraCommand, Result<G
     private readonly TransaccionDbContext _context;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<CreateCompraHandler> _logger;
-
+    private readonly ICorrelationContext _correlationContext;
     public CreateCompraHandler(
         TransaccionDbContext context,
         ILogger<CreateCompraHandler> logger,
-        IHttpClientFactory httpClientFactory        )
+        IHttpClientFactory httpClientFactory,
+        ICorrelationContext correlationContext)
     {
         _context = context;
         _logger = logger;
         _httpClientFactory = httpClientFactory;
+        _correlationContext = correlationContext;
     }
 
     public async Task<Result<Guid>> Handle( CreateCompraCommand request,CancellationToken cancellationToken)
@@ -67,8 +69,8 @@ public class CreateCompraHandler : IRequestHandler<CreateCompraCommand, Result<G
         {
             NumeroCompra = compra.NumeroCompra,
             Total = compra.TotalCompra,
-            TraceId = CorrelationContext.TraceId,
-        
+            TraceId = _correlationContext.CorrelationId,
+
             Items = compra.Detalles
                 .Select(x => new CompraRegistradaItemEvent
                 {

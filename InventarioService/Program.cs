@@ -1,17 +1,20 @@
-
 var builder = WebApplication.CreateBuilder(args);
-StartupConsoleExtensions.PrintStartupInfo(builder.Environment.ApplicationName,
-                                          builder.Environment.EnvironmentName,
-                                          builder.Configuration);
 
-//builder.Host.AddSerilogLogging(builder);
+StartupConsoleExtensions.PrintStartupInfo(
+    builder.Environment.ApplicationName,
+    builder.Environment.EnvironmentName,
+    builder.Configuration);
+
 builder.Host.AddBuildingBlockObservability();
 
+
+builder.Services.AddBuildingBlockObservability(builder.Configuration);
+
 builder.Services
-        .AddApi()
-        .AddApplication()
-        .AddBuildingBlocks()
-        .AddInfrastructure(builder.Configuration);
+    .AddApi()
+    .AddApplication()
+    .AddBuildingBlocks()
+    .AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 
