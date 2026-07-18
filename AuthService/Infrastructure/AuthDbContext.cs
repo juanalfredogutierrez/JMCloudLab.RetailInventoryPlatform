@@ -1,6 +1,4 @@
-﻿using AuthService.Domain.Entities;
-using BuildingBlocks.Domain;
-using Microsoft.EntityFrameworkCore;
+﻿using BuildingBlocks.Domain;
 
 namespace AuthService.Infrastructure.Persistence;
 

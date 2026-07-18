@@ -1,7 +1,6 @@
 ﻿global using BuildingBlocks.Application;
 global using BuildingBlocks.Correlation;
 global using BuildingBlocks.Middleware;
-global using BuildingBlocks.Middleware.Correlation;
 global using BuildingBlocks.Observability;
 global using MediatR;
 global using Microsoft.AspNetCore.Mvc;

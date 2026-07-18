@@ -1,5 +1,6 @@
 ﻿using InventarioService.Application.Commands.RegistrarEntrada;
 using InventarioService.Application.Commands.RegistrarSalida;
+using BuildingBlocks.Observability.Services;
 using InventarioService.Domain.Events;
 using MediatR;
 using Microsoft.Extensions.Options;
@@ -14,15 +15,19 @@ public sealed class RabbitMqConsumerWorker : BackgroundService
 {
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly RabbitMqOptions _rabbitMqOptions;
+    private readonly ILogger<RabbitMqConsumerWorker> _logger;
     private IConnection _connection;
     private IChannel _channel;
 
-    public RabbitMqConsumerWorker(IServiceScopeFactory scopeFactory, IOptions<RabbitMqOptions> rabbitMqOptions)
+    public RabbitMqConsumerWorker(
+        IServiceScopeFactory scopeFactory,
+        IOptions<RabbitMqOptions> rabbitMqOptions,
+        ILogger<RabbitMqConsumerWorker> logger)
     {
         _scopeFactory = scopeFactory;
         _rabbitMqOptions = rabbitMqOptions.Value;
+        _logger = logger;
     }
-
     public override async Task StartAsync(CancellationToken cancellationToken)
     {
         var factory = new ConnectionFactory
@@ -56,12 +61,16 @@ public sealed class RabbitMqConsumerWorker : BackgroundService
             global: false,
             cancellationToken: cancellationToken);
 
+
+        _logger.LogInformation("RabbitMQ Consumer iniciado. Queues: {Queues}",
+                              "compra.registrada, venta.registrada");
+
         await base.StartAsync(cancellationToken);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        if (_channel is null)
+        if (_channel is null)   
             throw new InvalidOperationException("RabbitMQ channel no inicializado.");
 
         var consumer = new AsyncEventingBasicConsumer(_channel);
@@ -79,7 +88,7 @@ public sealed class RabbitMqConsumerWorker : BackgroundService
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error procesando mensaje: {ex.Message}");
+                _logger.LogError(ex, "Error procesando mensaje RabbitMQ. RoutingKey: {RoutingKey}", ea.RoutingKey);
 
                 await _channel.BasicNackAsync(
                     deliveryTag: ea.DeliveryTag,
@@ -108,31 +117,31 @@ public sealed class RabbitMqConsumerWorker : BackgroundService
     {
         var message = Encoding.UTF8.GetString(ea.Body.ToArray());
 
-        using var scope = _scopeFactory.CreateScope();
-
+        await using var scope = _scopeFactory.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<InventarioDbContext>();
         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+        var correlationContext = scope.ServiceProvider.GetRequiredService<ICorrelationContext>();
 
         switch (ea.RoutingKey)
         {
             case "compra.registrada":
-                await ProcesarCompra(message, db, mediator);
+                await ProcesarCompra(message, db, mediator, correlationContext);
                 break;
 
             case "venta.registrada":
-                await ProcesarVenta(message, db, mediator);
+                await ProcesarVenta(message, db, mediator, correlationContext);
                 break;
         }
     }
 
-    private static async Task ProcesarCompra(string message, InventarioDbContext db, IMediator mediator)
+    private async Task ProcesarCompra(string message, InventarioDbContext db, IMediator mediator, ICorrelationContext correlationContext)
     {
         var evt = JsonSerializer.Deserialize<CompraRegistradaEvent>(message);
 
         if (evt is null)
             return;
 
-        CorrelationContext.TraceId = evt.TraceId;
+        correlationContext.SetCorrelationId(evt.TraceId);
 
         if (await ExisteEvento(db, evt.EventId))
             return;
@@ -149,14 +158,14 @@ public sealed class RabbitMqConsumerWorker : BackgroundService
         }
     }
 
-    private static async Task ProcesarVenta(string message, InventarioDbContext db, IMediator mediator)
+    private async Task ProcesarVenta(string message, InventarioDbContext db, IMediator mediator, ICorrelationContext correlationContext)
     {
         var evt = JsonSerializer.Deserialize<VentaRegistradaEvent>(message);
 
         if (evt is null)
             return;
 
-        CorrelationContext.TraceId = evt.TraceId;
+        correlationContext.SetCorrelationId(evt.TraceId);
 
         if (await ExisteEvento(db, evt.EventId))
             return;
@@ -178,29 +187,22 @@ public sealed class RabbitMqConsumerWorker : BackgroundService
 
     private static async Task GuardarEvento(InventarioDbContext db, Guid eventId, string nombreEvento, string referenciaNegocio, string payload)
     {
-        try
+        db.EventosProcesados.Add(new Domain.Entities.EventoProcesado
         {
-            db.EventosProcesados.Add(new Domain.Entities.EventoProcesado
-            {
-                EventoId = eventId,
-                NombreEvento = nombreEvento,
-                ReferenciaNegocio = referenciaNegocio,
-                Payload = payload,
-                FechaProcesamiento = DateTime.Now
-            });
+            EventoId = eventId,
+            NombreEvento = nombreEvento,
+            ReferenciaNegocio = referenciaNegocio,
+            Payload = payload,
+            FechaProcesamiento = DateTime.UtcNow
+        });
 
-            await db.SaveChangesAsync();
-        }
-        catch (Exception ex)
-        {
-
-            throw new InvalidOperationException(ex.Message, ex);
-        }
-
+        await db.SaveChangesAsync();
     }
 
     public override async Task StopAsync(CancellationToken cancellationToken)
     {
+        _logger.LogInformation("RabbitMQ Consumer detenido.");
+
         if (_channel is not null)
             await _channel.DisposeAsync();
 

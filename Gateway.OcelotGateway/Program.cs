@@ -11,7 +11,7 @@ StartupConsoleExtensions.PrintStartupInfo(
     builder.Environment.EnvironmentName,
     builder.Configuration);
 
-builder.Host.AddSerilogLogging(builder);
+builder.Host.AddBuildingBlockObservability();
 
 builder.Services.AddGateway(builder.Configuration);
 

@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using BuildingBlocks.Observability.Services;
+using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -18,7 +19,7 @@ public class CreateVentaHandlerTests
     private readonly TransaccionDbContext _context;
     private readonly Mock<IHttpClientFactory> _httpClientFactoryMock;
     private readonly Mock<ILogger<CreateVentaHandler>> _loggerMock;
-
+    private readonly Mock<ICorrelationContext> _correlationContextMock;
     private readonly CreateVentaHandler _handler;
 
     public CreateVentaHandlerTests()
@@ -28,9 +29,14 @@ public class CreateVentaHandlerTests
             .Options;
 
         _context = new TransaccionDbContext(options);
-        _httpClientFactoryMock = new Mock<IHttpClientFactory>();
 
+        _httpClientFactoryMock = new Mock<IHttpClientFactory>();
         _loggerMock = new Mock<ILogger<CreateVentaHandler>>();
+        _correlationContextMock = new Mock<ICorrelationContext>();
+
+        _correlationContextMock
+            .Setup(x => x.CorrelationId)
+            .Returns("test-correlation-id");
 
         var httpClient = new HttpClient(
             new FakeHttpMessageHandler(() =>
@@ -58,8 +64,9 @@ public class CreateVentaHandlerTests
 
         _handler = new CreateVentaHandler(
             _context,
+            _loggerMock.Object,
             _httpClientFactoryMock.Object,
-            _loggerMock.Object);
+            _correlationContextMock.Object);
     }
 
     [Fact]
@@ -90,20 +97,15 @@ public class CreateVentaHandlerTests
             .Setup(x => x.CreateClient("InventarioApi"))
             .Returns(httpClient);
 
-        var handler = new CreateVentaHandler(
-            _context,
-            _httpClientFactoryMock.Object,
-            _loggerMock.Object);
-
         var command = new CreateVentaCommand(
             new()
             {
-            new DetalleVentaDto(1, 5, 100)
+                new DetalleVentaDto(1, 5, 100)
             },
             "Venta prueba");
 
         // Act
-        var result = await handler.Handle(
+        var result = await _handler.Handle(
             command,
             CancellationToken.None);
 
@@ -118,40 +120,37 @@ public class CreateVentaHandlerTests
         result.FirstError.Message.Should()
             .Be(VentaErrors.StockInsuficiente(1, 2, 5).Message);
 
-        // No debe persistir la venta
         _context.Ventas.Should().BeEmpty();
-
-
     }
+
+    [Fact]
     public async Task Handle_Should_Create_Venta_When_Request_Is_Valid()
     {
+        // Arrange
         var command = new CreateVentaCommand(
-        new()
-        {
-        new DetalleVentaDto(1, 2, 100),
-        new DetalleVentaDto(2, 1, 50)
-        },
-        "Venta prueba");
+            new()
+            {
+                new DetalleVentaDto(1, 2, 100),
+                new DetalleVentaDto(2, 1, 50)
+            },
+            "Venta prueba");
 
+        // Act
         var result = await _handler.Handle(
-        command,
-        CancellationToken.None);
+            command,
+            CancellationToken.None);
 
-        Assert.True(result.IsSuccess);
+        // Assert
+        result.IsSuccess.Should().BeTrue();
 
-        Assert.NotEqual(Guid.Empty, result.Value);
+        result.Value.Should().NotBe(Guid.Empty);
 
         var venta = await _context.Ventas
-        .Include(x => x.Detalles)
-        .FirstOrDefaultAsync();
+            .Include(x => x.Detalles)
+            .FirstOrDefaultAsync();
 
-        Assert.NotNull(venta);
-
-        Assert.Equal(250, venta.TotalVenta);
-
-        Assert.Equal(2, venta.Detalles.Count);
-
-      
+        venta.Should().NotBeNull();
+        venta!.TotalVenta.Should().Be(250);
+        venta.Detalles.Should().HaveCount(2);
     }
-
 }

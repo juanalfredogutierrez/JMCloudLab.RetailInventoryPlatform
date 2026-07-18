@@ -1,4 +1,6 @@
-﻿namespace ProductoService.Infrastructure.Extensions
+﻿using BuildingBlocks.Observability.Extensions;
+
+namespace ProductoService.Infrastructure.Extensions
 {
     public static class ApplicationBuilderExtensions
     {
@@ -7,8 +9,8 @@
             app.UseSwagger();
             app.UseSwaggerUI();
 
-            app.UseMiddleware<CorrelationMiddleware>();
             app.UseMiddleware<ExceptionMiddleware>();
+            app.UseBuildingBlockObservability();
 
             app.MapControllers();
 

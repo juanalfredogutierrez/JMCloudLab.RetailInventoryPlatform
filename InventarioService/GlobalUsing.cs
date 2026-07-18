@@ -4,7 +4,6 @@ global using BuildingBlocks.Application;
 global using BuildingBlocks.Correlation;
 global using BuildingBlocks.Messaging.RabbiMQ;
 global using BuildingBlocks.Middleware;
-global using BuildingBlocks.Middleware.Correlation;
 global using BuildingBlocks.Observability;
 global using InventarioService.Application;
 global using InventarioService.Infrastructure.Messaging;

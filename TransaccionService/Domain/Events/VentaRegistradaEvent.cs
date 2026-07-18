@@ -1,5 +1,4 @@
-﻿using BuildingBlocks.Messaging.RabbiMQ;
-namespace TransaccionService.Domain.Events;
+﻿namespace TransaccionService.Domain.Events;
 
 public class VentaRegistradaEvent: IntegrationEvent
 {

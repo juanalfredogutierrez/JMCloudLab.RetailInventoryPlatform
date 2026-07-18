@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using BuildingBlocks.Observability.Services;
+using System.Text.Json;
 using TransaccionService.Application.DTOs;
 using TransaccionService.Domain.Entities;
 using TransaccionService.Domain.Errors;
@@ -11,15 +12,18 @@ public class CreateVentaHandler : IRequestHandler<CreateVentaCommand, Result<Gui
     private readonly ILogger<CreateVentaHandler> _logger;
     private readonly TransaccionDbContext _context;
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly ICorrelationContext _correlationContext;
 
     public CreateVentaHandler(
         TransaccionDbContext context,
+        ILogger<CreateVentaHandler> logger,
         IHttpClientFactory httpClientFactory,
-        ILogger<CreateVentaHandler> logger)
+        ICorrelationContext correlationContext)
     {
         _context = context;
-        _httpClientFactory = httpClientFactory;
         _logger = logger;
+        _httpClientFactory = httpClientFactory;
+        _correlationContext = correlationContext;
     }
 
     public async Task<Result<Guid>> Handle(CreateVentaCommand request,CancellationToken cancellationToken)
@@ -89,7 +93,7 @@ public class CreateVentaHandler : IRequestHandler<CreateVentaCommand, Result<Gui
         var integrationEvent = new VentaRegistradaEvent
         {
             NumeroVenta = venta.NumeroVenta,
-            TraceId = CorrelationContext.TraceId,
+            TraceId = _correlationContext.CorrelationId,
 
             Items = venta.Detalles
               .Select(x => new VentaRegistradaItemEvent 
