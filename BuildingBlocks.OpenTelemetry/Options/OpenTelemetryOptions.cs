@@ -2,15 +2,15 @@
 
 public sealed class OpenTelemetryOptions
 {
-    public string ServiceNamespace { get; set; } = "RetailInventory";
-
     public const string SectionName = "OpenTelemetry";
 
-    public string ServiceName { get; set; } = string.Empty;
+    public string ServiceNamespace { get; set; } = string.Empty;
+
+    public string ServiceName { get; internal set; } = string.Empty;
 
     public string ServiceVersion { get; set; } = "1.0.0";
 
-    public string Environment { get; set; } = "Development";
+    public string Environment { get; internal set; } = string.Empty;
 
     public string Endpoint { get; set; } = "http://localhost:4317";
 

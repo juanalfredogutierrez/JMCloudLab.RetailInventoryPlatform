@@ -1,41 +1,25 @@
 ﻿using BuildingBlocks.OpenTelemetry.Builders;
-using BuildingBlocks.OpenTelemetry.Options;
-using BuildingBlocks.OpenTelemetry.Resources;
-using BuildingBlocks.OpenTelemetry.Validation;
+using BuildingBlocks.OpenTelemetry.Configuration;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace BuildingBlocks.OpenTelemetry;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddOpenTelemetryServices(
+    public static IServiceCollection AddBuildingBlocksOpenTelemetry(
         this IServiceCollection services,
-        ILoggingBuilder logging,
-        Action<OpenTelemetryOptions> configure)
+        IConfiguration configuration,
+        IHostEnvironment environment,
+        ILoggingBuilder logging)
     {
-        var options = new OpenTelemetryOptions();
-
-        configure(options);
-
-        OpenTelemetryOptionsValidator.Validate(options);
-
-        services
-            .AddOpenTelemetry()
-            .ConfigureResource(resource =>
-            {
-                resource.AddDefaultResource(options);
-            })
-            .WithTracing(tracing =>
-            {
-                tracing.AddDefaultTracing(options);
-            })
-            .WithMetrics(metrics =>
-            {
-                metrics.AddDefaultMetrics(options);
-            });
+        var options = configuration.GetOpenTelemetryOptions(environment);
 
         logging.AddDefaultLogging(options);
+
+        services.AddDefaultOpenTelemetry(options);
 
         return services;
     }

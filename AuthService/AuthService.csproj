@@ -24,6 +24,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\BuildingBlocks.Observability\BuildingBlocks.Observability.csproj" />
+		<ProjectReference Include="..\BuildingBlocks.OpenTelemetry\BuildingBlocks.OpenTelemetry.csproj" />
 		<ProjectReference Include="..\BuildingBlocks\BuildingBlocks.csproj" />
 	</ItemGroup>
 

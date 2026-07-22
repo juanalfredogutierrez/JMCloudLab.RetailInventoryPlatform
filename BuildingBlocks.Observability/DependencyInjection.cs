@@ -10,7 +10,7 @@ namespace BuildingBlocks.Observability;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddBuildingBlockObservability(
+    public static IServiceCollection AddObservabilityServices(
         this IServiceCollection services,IConfiguration configuration)
     {
         services.AddHttpContextAccessor();

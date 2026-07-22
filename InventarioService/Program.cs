@@ -1,3 +1,6 @@
+
+using BuildingBlocks.OpenTelemetry;
+
 var builder = WebApplication.CreateBuilder(args);
 
 StartupConsoleExtensions.PrintStartupInfo(
@@ -7,8 +10,12 @@ StartupConsoleExtensions.PrintStartupInfo(
 
 builder.Host.AddBuildingBlockObservability();
 
+builder.Services.AddBuildingBlocksOpenTelemetry(
+    builder.Configuration,
+    builder.Environment,
+    builder.Logging);
 
-builder.Services.AddBuildingBlockObservability(builder.Configuration);
+builder.Services.AddObservabilityServices(builder.Configuration);
 
 builder.Services
     .AddApi()
