@@ -1,4 +1,6 @@
 
+using BuildingBlocks.OpenTelemetry;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddJsonFile(
@@ -12,7 +14,10 @@ StartupConsoleExtensions.PrintStartupInfo(
     builder.Configuration);
 
 builder.Host.AddBuildingBlockObservability();
-
+builder.Services.AddBuildingBlocksOpenTelemetry(
+    builder.Configuration,
+    builder.Environment,
+    builder.Logging);
 builder.Services.AddGateway(builder.Configuration);
 
 var app = builder.Build();

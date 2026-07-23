@@ -55,6 +55,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildingBlocks.Resilience.T
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildingBlocks.Observability.Tests", "BuildingBlocks.Observability.Tests\BuildingBlocks.Observability.Tests.csproj", "{31CFBBC2-5F4D-4FD0-8AA1-1C6ECEBF5CC1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildingBlocks.OpenTelemetry.Tests", "BuildingBlocks.OpenTelemetry.Tests.csproj\BuildingBlocks.OpenTelemetry.Tests.csproj", "{9187A7C5-ED30-4B91-A8EB-9E731C3E35CC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -129,6 +131,10 @@ Global
 		{31CFBBC2-5F4D-4FD0-8AA1-1C6ECEBF5CC1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{31CFBBC2-5F4D-4FD0-8AA1-1C6ECEBF5CC1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{31CFBBC2-5F4D-4FD0-8AA1-1C6ECEBF5CC1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9187A7C5-ED30-4B91-A8EB-9E731C3E35CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9187A7C5-ED30-4B91-A8EB-9E731C3E35CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9187A7C5-ED30-4B91-A8EB-9E731C3E35CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9187A7C5-ED30-4B91-A8EB-9E731C3E35CC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -154,6 +160,7 @@ Global
 		{92D2A929-4152-41F8-84CC-9CBD3C01CCA6} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{A730401C-73C7-44C4-BC27-01AA8D61F31F} = {0B9B6195-0638-4390-9053-7C9B55BEEA08}
 		{31CFBBC2-5F4D-4FD0-8AA1-1C6ECEBF5CC1} = {0B9B6195-0638-4390-9053-7C9B55BEEA08}
+		{9187A7C5-ED30-4B91-A8EB-9E731C3E35CC} = {0B9B6195-0638-4390-9053-7C9B55BEEA08}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {197D4ABD-30B0-4E09-9214-684121DB7E0C}

@@ -15,7 +15,7 @@
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.27" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.27" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.27" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.28" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.27" />
 
     <!-- MediatR -->
     <PackageVersion Include="MediatR" Version="14.1.0" />
@@ -24,12 +24,13 @@
     <PackageVersion Include="FluentValidation" Version="12.1.1" />
     <PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
 
-    <!-- Microsoft Extensions -->
+    <!-- Microsoft.Extensions -->
+	<PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
+	<PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Options" Version="8.0.2" />
     <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
-    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="8.10.0" />
 
     <!-- Identity -->
     <PackageVersion Include="Microsoft.IdentityModel.Tokens" Version="8.19.1" />
@@ -40,10 +41,18 @@
 
     <!-- Ocelot -->
     <PackageVersion Include="Ocelot" Version="23.4.3" />
-	
-	   <!-- Resilience -->
+
+    <!-- Resilience -->
     <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="8.10.0" />
 
+    <!-- OpenTelemetry -->
+    <PackageVersion Include="OpenTelemetry" Version="1.16.0" />
+	<PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.16.0" />
+	<PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.16.0" />
+	<PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.16.0" />
+	<PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.16.0" />
+	<PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.16.0" />
+	
     <!-- Serilog -->
     <PackageVersion Include="Serilog.AspNetCore" Version="8.0.3" />
     <PackageVersion Include="Serilog.Settings.Configuration" Version="8.0.4" />
