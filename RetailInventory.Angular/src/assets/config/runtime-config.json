@@ -1,0 +1,5 @@
+{
+  "apiUrl": "http://localhost:5000",
+  "applicationName": "JMCloudLab Retail Inventory Platform",
+  "environment": "Development"
+}

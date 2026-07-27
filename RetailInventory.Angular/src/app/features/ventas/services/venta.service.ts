@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { API } from '../../../core/constants/api.constants';
 import { ApiResponse } from '../../../core/Model/api-response.model';
 import { VentaRequest } from '../models/venta-request.model';
+import { ApiConfigurationService } from '../../../core/configuration/api-configuration.service';
 
 
 
@@ -13,11 +14,11 @@ import { VentaRequest } from '../models/venta-request.model';
 export class VentaService {
 
   private readonly http = inject(HttpClient);
-
+private readonly api = inject(ApiConfigurationService);
   create(request: VentaRequest) {
 
     return this.http.post<ApiResponse<string>>(
-      `${API.gateway}${API.transaccion.ventas}`,
+      `${this.api.baseUrl}${API.transaccion.ventas}`,
       request
     );
   }

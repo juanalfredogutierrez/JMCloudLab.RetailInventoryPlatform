@@ -367,4 +367,4 @@ https://www.linkedin.com/in/juanalfredogutierrez/
 
 # ⭐ If you found this project useful...
 
-Give it a ⭐ on GitHub!
+v2.0

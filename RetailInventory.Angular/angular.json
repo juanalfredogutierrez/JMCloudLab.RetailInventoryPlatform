@@ -6,7 +6,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "mi-app-angular21": {
+    "JMCloudLab.RetailInventoryPlatform.Web": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -20,31 +20,38 @@
         "build": {
           "builder": "@angular/build:application",
           "options": {
+            "outputPath": {
+              "base": "dist/JMCloudLab.RetailInventoryPlatform.Web"
+            },
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
               {
                 "glob": "**/*",
-                "input": "public"
+                "input": "public",
+                "output": "/"
+              },
+              {
+                "glob": "**/*",
+                "input": "src/assets",
+                "output": "assets"
               }
             ],
-              "styles": [
-                "src/styles.scss"
-              ]
+            "styles": ["src/styles.scss"]
           },
           "configurations": {
             "production": {
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
-                  "maximumError": "1MB"
+                  "maximumWarning": "1MB",
+                  "maximumError": "2MB"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "12kB",
+                  "maximumError": "20kB"
                 }
               ],
               "outputHashing": "all"
@@ -61,10 +68,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "mi-app-angular21:build:production"
+              "buildTarget": "JMCloudLab.RetailInventoryPlatform.Web:build:production"
             },
             "development": {
-              "buildTarget": "mi-app-angular21:build:development"
+              "buildTarget": "JMCloudLab.RetailInventoryPlatform.Web:build:development"
             }
           },
           "defaultConfiguration": "development"
