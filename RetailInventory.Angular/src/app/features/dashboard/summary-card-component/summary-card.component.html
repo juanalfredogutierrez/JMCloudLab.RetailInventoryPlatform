@@ -1,0 +1,19 @@
+<article [class]="['metric-card', metric().cardClass ?? ''].join(' ')">
+  <div>
+    <span class="eyebrow">{{ metric().title }}</span>
+    <strong>{{ metric().value }}</strong>
+    <small [class]="metric().tone">{{ metric().description }}</small>
+  </div>
+  <span [class]="['metric-icon', metric().iconClass].join(' ')">{{ metric().icon }}</span>
+
+  @if (metric().sparklinePath) {
+    <svg
+      [class]="['sparkline', metric().lineClass ?? ''].join(' ')"
+      viewBox="0 0 170 50"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
+      <path [attr.d]="metric().sparklinePath" />
+    </svg>
+  }
+</article>

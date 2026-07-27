@@ -1,0 +1,23 @@
+.success-snackbar {
+  .mdc-snackbar__surface {
+    background-color: #2e7d32 !important;
+  }
+}
+
+.warning-snackbar {
+  .mdc-snackbar__surface {
+    background-color: #ed6c02 !important;
+  }
+}
+
+.error-snackbar {
+  .mdc-snackbar__surface {
+    background-color: #d32f2f !important;
+  }
+}
+
+.info-snackbar {
+  .mdc-snackbar__surface {
+    background-color: #1976d2 !important;
+  }
+}

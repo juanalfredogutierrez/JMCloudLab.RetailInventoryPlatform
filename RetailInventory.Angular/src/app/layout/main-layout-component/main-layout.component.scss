@@ -1,0 +1,74 @@
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+/* =========================================================
+   TOKENS
+========================================================= */
+$sidebar-width: 272px;
+$sidebar-collapsed-width: 92px;
+$topbar-height: 70px;
+$content-max-width: 1440px;
+
+$bg-app: #f3f6fb;
+$bg-content: #f5f7fb;
+$border-color: #e5ebf3;
+$text-primary: #0f172a;
+
+/* =========================================================
+   LAYOUT
+========================================================= */
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  background: $bg-app;
+  position: relative;
+}
+
+.app-shell__main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.app-shell__content {
+  flex: 1;
+  min-width: 0;
+  background: $bg-content;
+  padding: 24px;
+}
+
+.app-shell__content-inner {
+  width: 100%;
+  max-width: $content-max-width;
+  margin: 0 auto;
+}
+
+/* =========================================================
+   BACKDROP MOBILE
+========================================================= */
+.app-shell__backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.42);
+  z-index: 60;
+  backdrop-filter: blur(2px);
+}
+
+/* =========================================================
+   DESKTOP / TABLET
+========================================================= */
+@media (max-width: 1200px) {
+  .app-shell__content {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 992px) {
+  .app-shell__content {
+    padding: 16px;
+  }
+}

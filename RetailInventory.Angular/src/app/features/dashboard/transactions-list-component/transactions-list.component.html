@@ -1,0 +1,19 @@
+<article class="panel transactions">
+  <div class="panel-title">
+    <h2>Últimos Movimientos</h2>
+    <a href="#">Ver todas</a>
+  </div>
+
+  <div class="transaction-list">
+    @for (transaction of transactions(); track transaction.title + transaction.amount) {
+      <div class="transaction">
+        <span [class]="['tx-icon', transaction.iconClass].join(' ')">{{ transaction.icon }}</span>
+        <span>
+          <strong>{{ transaction.title }}</strong>
+          <small>{{ transaction.date }} <em>{{ transaction.account }}</em></small>
+        </span>
+        <b [class]="transaction.tone">{{ transaction.amount }}</b>
+      </div>
+    }
+  </div>
+</article>

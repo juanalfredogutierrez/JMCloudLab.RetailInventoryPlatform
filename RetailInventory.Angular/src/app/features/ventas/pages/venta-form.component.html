@@ -1,0 +1,293 @@
+<div class="page-container">
+
+  <!-- HEADER -->
+  <div class="page-header">
+    <h1>Registrar venta</h1>
+    <p>Registra la salida de productos del inventario</p>
+  </div>
+
+  <div class="page-layout">
+
+    <!-- COLUMNA PRINCIPAL -->
+    <div class="content-column">
+
+      <!-- FORMULARIO -->
+      <div class="form-card">
+
+        <div class="section-header">
+          <div>
+            <h3>Agregar producto</h3>
+            <p>Selecciona el producto y define el detalle de la venta.</p>
+          </div>
+        </div>
+
+        <form [formGroup]="form">
+
+          <div class="form-grid">
+
+            <!-- Producto -->
+            <div class="form-group span-7">
+              <label>Producto</label>
+
+              <select formControlName="productoId">
+
+                @for (producto of productos(); track producto.productoId) {
+
+                <option [ngValue]="producto.productoId">
+                  {{ producto.codigo }} - {{ producto.nombre }}
+                </option>
+
+                }
+
+              </select>
+
+            </div>
+
+            <!-- Precio -->
+            <div class="form-group span-3">
+              <label>Precio Unitario</label>
+
+              <input type="number" [value]="precioSeleccionado" readonly class="readonly-input">
+
+            </div>
+
+            <!-- Cantidad -->
+            <div class="form-group span-7">
+              <label>Cantidad</label>
+
+              <input type="number" formControlName="cantidad">
+
+            </div>
+
+            <!-- Stock -->
+            <div class="form-group span-3">
+              <label>Stock disponible</label>
+
+              <input type="number" [value]="stockDisponible()" readonly class="readonly-input">
+
+            </div>
+
+            <!-- Observación -->
+            <div class="form-group span-10">
+
+              <label>Observación <span>(opcional)</span></label>
+
+              <textarea rows="2" formControlName="observacion" placeholder="Agrega una observación si aplica...">
+              </textarea>
+
+            </div>
+
+          </div>
+
+          <!-- Barra inferior -->
+          <div class="item-summary-bar">
+
+            <div class="summary-chip">
+              <span>Stock</span>
+              <strong>{{ stockDisponible() }}</strong>
+            </div>
+
+            <div class="summary-chip">
+              <span>Precio</span>
+              <strong>{{ precioSeleccionado | number:'1.2-2' }}</strong>
+            </div>
+
+            <div class="summary-chip summary-chip--highlight">
+              <span>Total actual</span>
+              <strong>{{ totalActual | number:'1.2-2' }}</strong>
+            </div>
+
+            <button type="button" class="btn-primary btn-add" (click)="agregarProducto()">
+
+              Agregar
+
+            </button>
+
+          </div>
+
+        </form>
+
+      </div>
+
+      <!-- DETALLE -->
+      <div class="detalle-card">
+
+        <div class="detalle-header">
+
+          <div>
+
+            <h3>Detalle de productos</h3>
+
+            <p>Productos agregados a la venta.</p>
+
+          </div>
+
+          <div class="detalle-info">
+
+            <strong>{{ detalles().length }}</strong>
+
+            <span>ítems</span>
+
+            <span class="separator">•</span>
+
+            <span>Total</span>
+
+            <strong>S/ {{ totalGeneral | number:'1.2-2' }}</strong>
+
+          </div>
+
+        </div>
+
+        <div class="table-wrapper">
+
+          <table class="detalle-table">
+
+            <thead>
+
+              <tr>
+
+                <th>Producto</th>
+                <th>Precio</th>
+                <th>Cantidad</th>
+                <th>Subtotal</th>
+                <th>IGV</th>
+                <th>Total</th>
+                <th>Acción</th>
+
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              @for (item of detalles(); track $index) {
+
+              <tr>
+
+                <td class="cell-product">{{ item.nombre }}</td>
+
+                <td>{{ item.precioUnitario | number:'1.2-2' }}</td>
+
+                <td>{{ item.cantidad }}</td>
+
+                <td>{{ item.subtotal | number:'1.2-2' }}</td>
+
+                <td>{{ item.igv | number:'1.2-2' }}</td>
+
+                <td class="cell-total">
+                  {{ item.total | number:'1.2-2' }}
+                </td>
+
+                <td class="action-cell">
+
+                  <button type="button" class="btn-delete" (click)="eliminar($index)" title="Eliminar">
+
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round">
+
+                      <path d="M3 6h18" />
+                      <path d="M8 6V4h8v2" />
+                      <path d="M19 6l-1 14H6L5 6" />
+                      <path d="M10 11v6" />
+                      <path d="M14 11v6" />
+
+                    </svg>
+
+                  </button>
+
+                </td>
+
+              </tr>
+
+              }
+
+              @if(detalles().length === 0){
+
+              <tr>
+
+                <td colspan="7" class="empty-row">
+
+                  📦 No hay productos agregados.
+                  Selecciona un producto y presiona
+                  <strong>"Agregar"</strong>.
+
+                </td>
+
+              </tr>
+
+              }
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- SIDEBAR -->
+    <aside class="summary-sidebar">
+
+      <div class="summary-sidebar-card">
+
+        <h3>Resumen de la venta</h3>
+
+        <p>Estado actual de la operación.</p>
+
+        <div class="sidebar-metric">
+
+          <span>Productos</span>
+
+          <strong>{{ detalles().length }}</strong>
+
+        </div>
+
+        <div class="sidebar-metric">
+
+          <span>Subtotal</span>
+
+          <strong>{{ subtotalGeneral | number:'1.2-2' }}</strong>
+
+        </div>
+
+        <div class="sidebar-metric">
+
+          <span>IGV</span>
+
+          <strong>{{ igvGeneral | number:'1.2-2' }}</strong>
+
+        </div>
+
+        <div class="total-box">
+
+          <span>Total venta</span>
+
+          <strong>{{ totalGeneral | number:'1.2-2' }}</strong>
+
+        </div>
+
+        <div class="sidebar-actions">
+
+          <button type="button" class="btn-secondary btn-block" routerLink="/dashboard">
+
+            Cancelar
+
+          </button>
+
+          <button type="button" class="btn-primary btn-block" [disabled]="detalles().length===0" (click)="save()">
+
+            Registrar Venta
+
+          </button>
+
+        </div>
+
+      </div>
+
+    </aside>
+
+  </div>
+
+</div>

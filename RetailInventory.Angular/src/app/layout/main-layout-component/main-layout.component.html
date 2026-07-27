@@ -1,0 +1,35 @@
+<div [ngClass]="layoutClasses()">
+
+  <!-- Backdrop mobile -->
+  <div
+    class="app-shell__backdrop"
+    *ngIf="mobileSidebarOpen()"
+    (click)="onCloseMobileSidebar()">
+  </div>
+
+  <!-- Sidebar -->
+  <app-sidebar
+    [collapsed]="sidebarCollapsed()"
+    [mobileOpen]="mobileSidebarOpen()"
+    (toggleSidebar)="onToggleSidebar()"
+    (closeMobileSidebar)="onCloseMobileSidebar()">
+  </app-sidebar>
+
+  <!-- Main -->
+  <div class="app-shell__main">
+
+    <app-topbar-component
+
+      (toggleSidebar)="onToggleSidebar()"
+      (toggleMobileSidebar)="onToggleMobileSidebar()">
+    </app-topbar-component>
+
+    <main class="app-shell__content">
+      <div class="app-shell__content-inner">
+        <router-outlet></router-outlet>
+      </div>
+    </main>
+
+  </div>
+
+</div>

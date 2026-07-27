@@ -1,0 +1,22 @@
+<main class="dashboard">
+  <section class="main-panel" aria-labelledby="summary-title">
+    <h1 id="summary-title">Resumen General</h1>
+
+    <div class="summary-grid">
+      @for (metric of summaryMetrics(); track metric.title) {
+        <app-summary-card-component [metric]="metric" />
+      }
+    </div>
+
+    <div class="analytics-grid">
+      <app-transactions-list-component [transactions]="transactions()" />
+
+      <div class="side-stack">
+        <app-distribution-card-component [distribution]="distribution()" />
+        <app-notifications-card-component [notifications]="notifications()" />
+      </div>
+    </div>
+  </section>
+
+  <app-base-components-panel-component [tableTransactions]="tableTransactions()" />
+</main>

@@ -1,0 +1,55 @@
+<div class="login-container">
+
+  <div class="login-card">
+
+    <div class="login-header">
+
+      <div class="logo">
+        📦
+      </div>
+
+      <h1>Retail Inventory</h1>
+
+      <p>
+        Iniciar sesión
+      </p>
+
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="login()">
+
+      <div class="form-group">
+
+        <label>
+          Usuario
+        </label>
+
+        <input type="text" formControlName="userName" placeholder="Ingrese usuario">
+
+      </div>
+
+      <div class="form-group">
+
+        <label>
+          Contraseña
+        </label>
+
+        <input type="password" formControlName="password" placeholder="Ingrese contraseña">
+
+      </div>
+
+      <button type="submit" [disabled]="loading() || loginForm.invalid">
+
+        @if (loading()) {
+        <span>Ingresando...</span>
+        } @else {
+        <span>Ingresar</span>
+        }
+
+      </button>
+
+    </form>
+
+  </div>
+
+</div>

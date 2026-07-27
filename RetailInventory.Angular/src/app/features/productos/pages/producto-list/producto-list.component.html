@@ -1,0 +1,233 @@
+<div class="page-container">
+
+  <!-- HEADER -->
+  <div class="page-header">
+
+    <h1>Productos</h1>
+
+    <p>
+      Gestiona el catálogo de productos del sistema.
+    </p>
+
+  </div>
+
+  <!-- CARD -->
+  <div class="form-card">
+
+    <!-- CABECERA -->
+    <div class="section-header">
+
+      <div>
+
+        <h3>Catálogo de productos</h3>
+
+        <p>
+          Consulta y administra los productos registrados.
+        </p>
+
+      </div>
+
+      <button
+        class="btn-primary btn-sm"
+        routerLink="/productos/nuevo">
+
+        + Nuevo producto
+
+      </button>
+
+    </div>
+
+    <!-- TOOLBAR -->
+    <div class="catalog-toolbar">
+
+      <!-- Buscador -->
+      <div class="search-box">
+
+        <input
+          type="text"
+          placeholder="Buscar por código o nombre..."
+          disabled>
+
+      </div>
+
+      <!-- Estado -->
+      <div class="filter-box">
+
+        <select disabled>
+
+          <option>Todos</option>
+          <option>Activos</option>
+          <option>Inactivos</option>
+
+        </select>
+
+      </div>
+
+      <!-- Información -->
+      <div class="detalle-info">
+
+        <strong>{{ productos().length }}</strong>
+
+        <span>productos</span>
+
+      </div>
+
+    </div>
+
+    <!-- TABLA -->
+    <div class="table-wrapper">
+
+      <table class="detalle-table">
+
+        <thead>
+
+          <tr>
+
+            <th style="width: 180px">
+              Código
+            </th>
+
+            <th>
+              Producto
+            </th>
+
+            <th style="width: 180px">
+              Precio
+            </th>
+
+            <th style="width: 150px">
+              Estado
+            </th>
+
+          </tr>
+
+        </thead>
+
+        <tbody>
+
+          @if(productos().length > 0){
+
+            @for (producto of productos(); track producto.uid) {
+
+              <tr>
+
+                <td class="cell-codigo">
+
+                  {{ producto.codigo }}
+
+                </td>
+
+                <td class="cell-product">
+
+                  {{ producto.nombre }}
+
+                </td>
+
+                <td class="cell-precio">
+
+                  S/
+                  {{ producto.precio | number:'1.2-2' }}
+
+                </td>
+
+                <td>
+
+                  <span
+                    [class]="producto.activo
+                      ? 'badge-active'
+                      : 'badge-inactive'">
+
+                    {{ producto.activo ? 'Activo' : 'Inactivo' }}
+
+                  </span>
+
+                </td>
+
+              </tr>
+
+            }
+
+          } @else {
+
+            <tr>
+
+              <td
+                colspan="4"
+                class="empty-row">
+
+                📦 No se encontraron productos registrados.
+
+              </td>
+
+            </tr>
+
+          }
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div class="catalog-footer">
+
+      <div class="catalog-summary">
+
+        Total:
+        <strong>{{ productos().length }}</strong>
+
+        producto(s)
+
+      </div>
+
+      <!-- PAGINACIÓN VISUAL -->
+      <div class="pagination">
+
+        <button
+          type="button"
+          disabled>
+
+          ← Anterior
+
+        </button>
+
+        <button
+          type="button"
+          class="active">
+
+          1
+
+        </button>
+
+        <button
+          type="button"
+          disabled>
+
+          2
+
+        </button>
+
+        <button
+          type="button"
+          disabled>
+
+          3
+
+        </button>
+
+        <button
+          type="button"
+          disabled>
+
+          Siguiente →
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

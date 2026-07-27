@@ -1,0 +1,16 @@
+<article class="panel notifications">
+  <div class="panel-title">
+    <h2>Notificaciones</h2>
+    <a href="#">Ver todas</a>
+  </div>
+
+  @for (notification of notifications(); track notification.title) {
+    <div class="notice">
+      <span [class]="['notice-icon', notification.iconClass].join(' ')">{{ notification.icon }}</span>
+      <span>
+        <strong>{{ notification.title }}</strong>
+        <small>{{ notification.date }}</small>
+      </span>
+    </div>
+  }
+</article>

@@ -1,0 +1,17 @@
+<article class="panel distribution">
+  <h2>Distribución de Productos</h2>
+  <div class="distribution-body">
+    <div class="donut">
+      <span>Total<br /><strong>S/ 128,430.50</strong></span>
+    </div>
+    <div class="legend">
+      @for (item of distribution(); track item.label) {
+        <p>
+          <i [class]="['dot', item.colorClass].join(' ')"></i>
+          <span>{{ item.label }}<small>{{ item.amount }}</small></span>
+          <b>{{ item.percent }}</b>
+        </p>
+      }
+    </div>
+  </div>
+</article>

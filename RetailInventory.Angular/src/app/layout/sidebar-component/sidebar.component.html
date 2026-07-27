@@ -1,0 +1,71 @@
+<aside
+  class="sidebar"
+  [class.sidebar--collapsed]="collapsed"
+  [class.sidebar--mobile-open]="mobileOpen">
+
+  <!-- Header -->
+  <div class="sidebar__header">
+    <div class="brand">
+      <div class="brand__logo">
+        <span>J</span>
+      </div>
+
+      @if (!collapsed) {
+        <div class="brand__text">
+          <div class="brand__title">Retail Inventory</div>
+          <div class="brand__subtitle">Retail Management</div>
+        </div>
+      }
+    </div>
+
+    <button
+      type="button"
+      class="sidebar__toggle"
+      (click)="handleToggleSidebar()"
+      [attr.aria-label]="collapsed ? 'Expandir menú' : 'Colapsar menú'">
+
+      <lucide-icon
+        [img]="collapsed ? ChevronRight : ChevronLeft"
+        [size]="18">
+      </lucide-icon>
+    </button>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="sidebar__nav">
+    @if (!collapsed) {
+      <div class="sidebar__section-label">Navegación</div>
+    }
+
+    <a
+      *ngFor="let item of menuItems"
+      class="nav-item"
+      [routerLink]="item.route"
+      routerLinkActive="nav-item--active"
+      [routerLinkActiveOptions]="{ exact: true }"
+      (click)="handleCloseMobile()">
+
+      <span class="nav-item__indicator"></span>
+
+      <span class="nav-item__icon">
+        <lucide-icon [img]="item.icon" [size]="18"></lucide-icon>
+      </span>
+
+      @if (!collapsed) {
+        <span class="nav-item__label">{{ item.label }}</span>
+      }
+    </a>
+  </nav>
+
+  <!-- Footer -->
+  @if (!collapsed) {
+    <div class="sidebar__footer">
+      <div class="sidebar__footer-card">
+        <div class="sidebar__footer-title">Retail Inventory</div>
+        <div class="sidebar__footer-text">
+          Plataforma de gestión de inventario, compras y ventas.
+        </div>
+      </div>
+    </div>
+  }
+</aside>

@@ -1,0 +1,24 @@
+:host {
+  display: block;
+}
+
+mat-dialog-content {
+  min-width: 380px;
+  padding-top: 12px;
+  margin-top: 12px;
+  margin-bottom: 20px;
+}
+
+mat-dialog-actions {
+  padding-top: 16px;
+}
+
+h2 {
+  margin-bottom: 8px;
+}
+
+.message {
+  font-size: 15px;
+  color: #555;
+  line-height: 1.5;
+}
