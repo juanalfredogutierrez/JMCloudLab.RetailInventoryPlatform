@@ -2,91 +2,118 @@ services:
 
   authservice:
     image: retailinventory/authservice:latest
+    container_name: authservice
+
     build:
       context: ../..
       dockerfile: Infrastructure/Docker/Dockerfiles/AuthService.Dockerfile
-    container_name: authservice
+
     restart: unless-stopped
+
     depends_on:
       sqlserver:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+
     ports:
       - "5001:8080"
+
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
       ConnectionStrings__DefaultConnection: "Server=sqlserver;Database=AuthDb;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True"
+
     networks:
       - retail-network
 
   productoservice:
     image: retailinventory/productoservice:latest
+    container_name: productoservice
+
     build:
       context: ../..
       dockerfile: Infrastructure/Docker/Dockerfiles/ProductoService.Dockerfile
-    container_name: productoservice
+
     restart: unless-stopped
+
     depends_on:
       sqlserver:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+
     ports:
       - "5002:8080"
+
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
       ConnectionStrings__DefaultConnection: "Server=sqlserver;Database=ProductoDb;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True"
+
     networks:
       - retail-network
 
   inventarioservice:
     image: retailinventory/inventarioservice:latest
+    container_name: inventarioservice
+
     build:
       context: ../..
       dockerfile: Infrastructure/Docker/Dockerfiles/InventarioService.Dockerfile
-    container_name: inventarioservice
+
     restart: unless-stopped
+
     depends_on:
       sqlserver:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+
     ports:
       - "5004:8080"
+
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
       ConnectionStrings__DefaultConnection: "Server=sqlserver;Database=InventarioDb;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True"
+
     networks:
       - retail-network
 
   transaccionservice:
     image: retailinventory/transaccionservice:latest
+    container_name: transaccionservice
+
     build:
       context: ../..
       dockerfile: Infrastructure/Docker/Dockerfiles/TransaccionService.Dockerfile
-    container_name: transaccionservice
+
     restart: unless-stopped
+
     depends_on:
       sqlserver:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+
     ports:
       - "5003:8080"
+
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
       ConnectionStrings__DefaultConnection: "Server=sqlserver;Database=TransaccionDb;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True"
+
     networks:
       - retail-network
 
   gateway:
     image: retailinventory/gateway:latest
+    container_name: gateway
+
     build:
       context: ../..
       dockerfile: Infrastructure/Docker/Dockerfiles/Gateway.Dockerfile
-    container_name: gateway
+
     restart: unless-stopped
+
     depends_on:
       authservice:
         condition: service_started
@@ -96,10 +123,37 @@ services:
         condition: service_started
       transaccionservice:
         condition: service_started
+
     ports:
       - "5000:8080"
+
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+
+    networks:
+      - retail-network
+
+  frontend:
+    image: retailinventory/frontend:latest
+    container_name: retailinventory-web
+
+    build:
+      context: ../..
+      dockerfile: Infrastructure/Docker/Dockerfiles/Angular.Dockerfile
+
+    restart: unless-stopped
+
+    depends_on:
+      gateway:
+        condition: service_started
+
+    ports:
+      - "4200:80"
+
+    environment:
+      API_URL: http://localhost:5000
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+
     networks:
       - retail-network
 

@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API } from '../../../core/constants/api.constants';
 import { ApiResponse } from '../../../core/Model/api-response.model';
+import { ApiConfigurationService } from '../../../core/configuration/api-configuration.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,13 +11,13 @@ import { ApiResponse } from '../../../core/Model/api-response.model';
 export class InventarioService {
 
   private readonly http = inject(HttpClient);
-
+private readonly api = inject(ApiConfigurationService);
   getStock(
     productoId: number
   ): Observable<ApiResponse<number>> {
 
     return this.http.get<ApiResponse<number>>(
-      `${API.gateway}${API.inventario.stock}/${productoId}`
+      `${this.api.baseUrl}${API.inventario.stock}/${productoId}`
     );
   }
 }
