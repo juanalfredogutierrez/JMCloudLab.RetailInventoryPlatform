@@ -1,5 +1,6 @@
 ﻿
 using BuildingBlocks.OpenTelemetry;
+using BuildingBlocks.HealthChecks;
 
 var builder = WebApplication.CreateBuilder(args);
 StartupConsoleExtensions.PrintStartupInfo(builder.Environment.ApplicationName,
@@ -7,6 +8,7 @@ StartupConsoleExtensions.PrintStartupInfo(builder.Environment.ApplicationName,
                                           builder.Configuration);
 
 builder.Host.AddBuildingBlockObservability();
+builder.Services.AddPlatformHealthChecks(builder.Configuration);
 
 builder.Services.AddBuildingBlocksOpenTelemetry(
     builder.Configuration,
@@ -20,7 +22,7 @@ builder.Services
         .AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
-
+app.MapPlatformHealthChecks();
 await app.InitializeDatabaseAsync();
 
 app.UseApi();
