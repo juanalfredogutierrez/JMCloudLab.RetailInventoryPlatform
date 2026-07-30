@@ -9,6 +9,7 @@ StartupConsoleExtensions.PrintStartupInfo(builder.Environment.ApplicationName,
 
 builder.Host.AddBuildingBlockObservability();
 builder.Services.AddPlatformHealthChecks(builder.Configuration);
+
 builder.Services.AddBuildingBlocksOpenTelemetry(
     builder.Configuration,
     builder.Environment,

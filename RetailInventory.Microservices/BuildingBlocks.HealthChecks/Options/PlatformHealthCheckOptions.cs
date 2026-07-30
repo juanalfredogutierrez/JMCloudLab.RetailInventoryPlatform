@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace BuildingBlocks.HealthChecks.Options;
 
-namespace BuildingBlocks.HealthChecks.Options
+public sealed class PlatformHealthCheckOptions
 {
-    internal class PlatformHealthCheckOptions
-    {
-    }
+    public bool EnableSelfCheck { get; set; } = true;
+
+    public bool EnableSqlServer { get; set; }
+
+    public bool EnableRabbitMq { get; set; }
 }
