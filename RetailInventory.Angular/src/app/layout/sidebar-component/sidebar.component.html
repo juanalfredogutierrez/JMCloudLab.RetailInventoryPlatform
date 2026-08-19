@@ -24,10 +24,10 @@
       (click)="handleToggleSidebar()"
       [attr.aria-label]="collapsed ? 'Expandir menú' : 'Colapsar menú'">
 
-      <lucide-icon
-        [img]="collapsed ? ChevronRight : ChevronLeft"
+      <svg
+        [lucideIcon]="collapsed ? ChevronRight : ChevronLeft"
         [size]="18">
-      </lucide-icon>
+      </svg>
     </button>
   </div>
 
@@ -48,7 +48,10 @@
       <span class="nav-item__indicator"></span>
 
       <span class="nav-item__icon">
-        <lucide-icon [img]="item.icon" [size]="18"></lucide-icon>
+        <svg
+          [lucideIcon]="item.icon"
+          [size]="18">
+        </svg>
       </span>
 
       @if (!collapsed) {

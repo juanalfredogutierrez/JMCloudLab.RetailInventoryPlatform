@@ -2,43 +2,90 @@
 
   <div class="topbar__left">
     <!-- Mobile -->
-    <button type="button" class="topbar__menu topbar__menu--mobile" aria-label="Abrir menú"
+    <button
+      type="button"
+      class="topbar__menu topbar__menu--mobile"
+      aria-label="Abrir menú"
       (click)="handleMobileToggle()">
-      <lucide-icon [img]="Menu" [size]="18"></lucide-icon>
+
+      <svg
+        [lucideIcon]="Menu"
+        [size]="18">
+      </svg>
+
     </button>
 
     <!-- Desktop -->
-    <button type="button" class="topbar__menu topbar__menu--desktop" aria-label="Colapsar menú"
+    <button
+      type="button"
+      class="topbar__menu topbar__menu--desktop"
+      aria-label="Colapsar menú"
       (click)="handleDesktopToggle()">
 
-      <lucide-icon [img]="sidebarCollapsed ? PanelLeftOpen : PanelLeftClose" [size]="18">
-      </lucide-icon>
+      <svg
+        [lucideIcon]="sidebarCollapsed ? PanelLeftOpen : PanelLeftClose"
+        [size]="18">
+      </svg>
+
     </button>
 
-    <div class="topbar__breadcrumb" aria-label="Breadcrumb">
-      @for (item of breadcrumb(); track $index) {
-      <div class="topbar__breadcrumb-item">
-        <span class="breadcrumb-label" [class.breadcrumb-label--active]="item.active">
-          {{ item.label }}
-        </span>
+    <div
+      class="topbar__breadcrumb"
+      aria-label="Breadcrumb">
 
-        @if (!$last) {
-        <lucide-icon class="breadcrumb-separator" [img]="ChevronRight" [size]="14">
-        </lucide-icon>
-        }
-      </div>
+      @for (item of breadcrumb(); track $index) {
+
+        <div class="topbar__breadcrumb-item">
+
+          <span
+            class="breadcrumb-label"
+            [class.breadcrumb-label--active]="item.active">
+
+            {{ item.label }}
+
+          </span>
+
+          @if (!$last) {
+
+            <svg
+              class="breadcrumb-separator"
+              [lucideIcon]="ChevronRight"
+              [size]="14">
+            </svg>
+
+          }
+
+        </div>
+
       }
+
     </div>
   </div>
 
   <div class="topbar__right">
-    <button class="topbar__icon" aria-label="Mensajes">
-      <lucide-icon [img]="Mail" [size]="17"></lucide-icon>
+
+    <button
+      class="topbar__icon"
+      aria-label="Mensajes">
+
+      <svg
+        [lucideIcon]="Mail"
+        [size]="17">
+      </svg>
+
     </button>
 
-    <button class="topbar__icon topbar__icon--badge" aria-label="Notificaciones">
-      <lucide-icon [img]="Bell" [size]="17"></lucide-icon>
+    <button
+      class="topbar__icon topbar__icon--badge"
+      aria-label="Notificaciones">
+
+      <svg
+        [lucideIcon]="Bell"
+        [size]="17">
+      </svg>
+
       <span class="topbar__badge">3</span>
+
     </button>
 
     <app-user-menu></app-user-menu>

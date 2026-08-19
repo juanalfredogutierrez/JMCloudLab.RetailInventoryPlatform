@@ -1,17 +1,26 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output, computed, inject, signal } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  computed,
+  inject,
+  signal
+} from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
 
 import {
-  Bell,
-  ChevronRight,
-  Menu,
-  Mail,
-  LucideAngularModule,
-  PanelLeftClose,
-  PanelLeftOpen
-} from 'lucide-angular';
+  LucideBell,
+  LucideChevronRight,
+  LucideDynamicIcon,
+  LucideMail,
+  LucideMenu,
+  LucidePanelLeftClose,
+  LucidePanelLeftOpen
+} from '@lucide/angular';
+
 import { TokenService } from '../../core/services/token.service';
 import { UserMenuComponent } from '../components/user-menu/user-menu.component';
 
@@ -23,37 +32,47 @@ interface BreadcrumbItem {
 @Component({
   selector: 'app-topbar-component',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule,UserMenuComponent],
+  imports: [
+    CommonModule,
+    LucideDynamicIcon,
+    UserMenuComponent
+  ],
   templateUrl: './topbar.component.html',
   styleUrl: './topbar.component.scss'
 })
 export class TopbarComponent {
   private readonly router = inject(Router);
   private readonly tokenService = inject(TokenService);
+
   @Input() sidebarCollapsed = false;
 
   @Output() toggleSidebar = new EventEmitter<void>();
   @Output() toggleMobileSidebar = new EventEmitter<void>();
 
-  readonly Bell = Bell;
-  readonly Mail = Mail;
-  readonly Menu = Menu;
-  readonly ChevronRight = ChevronRight;
-  readonly PanelLeftClose = PanelLeftClose;
-  readonly PanelLeftOpen = PanelLeftOpen;
+  readonly Bell = LucideBell;
+  readonly Mail = LucideMail;
+  readonly Menu = LucideMenu;
+  readonly ChevronRight = LucideChevronRight;
+  readonly PanelLeftClose = LucidePanelLeftClose;
+  readonly PanelLeftOpen = LucidePanelLeftOpen;
 
   private readonly currentUrl = signal(this.router.url);
 
   readonly currentUser = signal(
     this.tokenService.getCurrentUser()
   );
-  readonly breadcrumb = computed(() => this.buildBreadcrumb(this.currentUrl()));
+
+  readonly breadcrumb = computed(() =>
+    this.buildBreadcrumb(this.currentUrl())
+  );
 
   constructor() {
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: any) => {
-        this.currentUrl.set(event.urlAfterRedirects ?? event.url);
+        this.currentUrl.set(
+          event.urlAfterRedirects ?? event.url
+        );
       });
   }
 
@@ -65,22 +84,36 @@ export class TopbarComponent {
     }
 
     if (cleanUrl.startsWith('/productos')) {
-      return [{ label: 'Productos' }, { label: 'Catálogo', active: true }];
+      return [
+        { label: 'Productos' },
+        { label: 'Catálogo', active: true }
+      ];
     }
 
     if (cleanUrl.startsWith('/compras')) {
-      return [{ label: 'Compras' }, { label: 'Registrar compra', active: true }];
+      return [
+        { label: 'Compras' },
+        { label: 'Registrar compra', active: true }
+      ];
     }
 
     if (cleanUrl.startsWith('/ventas')) {
-      return [{ label: 'Ventas' }, { label: 'Registrar venta', active: true }];
+      return [
+        { label: 'Ventas' },
+        { label: 'Registrar venta', active: true }
+      ];
     }
 
     if (cleanUrl.startsWith('/kardex')) {
-      return [{ label: 'Kardex' }, { label: 'Movimientos', active: true }];
+      return [
+        { label: 'Kardex' },
+        { label: 'Movimientos', active: true }
+      ];
     }
 
-    return [{ label: 'Retail Inventory', active: true }];
+    return [
+      { label: 'Retail Inventory', active: true }
+    ];
   }
 
   handleDesktopToggle(): void {
@@ -90,12 +123,13 @@ export class TopbarComponent {
   handleMobileToggle(): void {
     this.toggleMobileSidebar.emit();
   }
-  get avatar(): string {
 
+  get avatar(): string {
     const user = this.currentUser();
 
-    if (!user?.userName)
+    if (!user?.userName) {
       return '?';
+    }
 
     return user.userName
       .split(' ')
@@ -103,19 +137,15 @@ export class TopbarComponent {
       .join('')
       .substring(0, 2)
       .toUpperCase();
-
   }
+
   get displayRole(): string {
-
     switch (this.currentUser()?.role) {
-
       case 'ADMIN':
         return 'Administrador';
 
       default:
         return this.currentUser()?.role ?? '';
-
     }
-
   }
 }
