@@ -7,7 +7,7 @@ namespace BuildingBlocks.Resilience.Validation;
 
 internal sealed class ResilienceOptionsValidator : IValidateOptions<ResilienceOptions>
 {
-    public ValidateOptionsResult Validate( string? name, ResilienceOptions options)
+    public ValidateOptionsResult Validate( string name, ResilienceOptions options)
     {
         var failures = new List<string>();
 

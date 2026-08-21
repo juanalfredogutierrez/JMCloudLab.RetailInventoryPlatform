@@ -12,5 +12,5 @@ public sealed class ObservabilityOptions
 
     public bool EnableSeq { get; set; } = true;
 
-    public string? SeqUrl { get; set; }
+    public string SeqUrl { get; set; }
 }
