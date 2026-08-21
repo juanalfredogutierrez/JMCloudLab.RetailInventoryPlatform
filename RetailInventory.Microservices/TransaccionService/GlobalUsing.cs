@@ -1,6 +1,5 @@
 ﻿global using BuildingBlocks;
 global using BuildingBlocks.Application;
-global using BuildingBlocks.Correlation;
 global using BuildingBlocks.Messaging.RabbiMQ;
 global using BuildingBlocks.Middleware;
 global using BuildingBlocks.Observability;

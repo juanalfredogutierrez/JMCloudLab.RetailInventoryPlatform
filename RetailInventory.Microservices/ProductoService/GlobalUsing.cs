@@ -1,5 +1,4 @@
 ﻿global using BuildingBlocks.Application;
-global using BuildingBlocks.Correlation;
 global using BuildingBlocks.Middleware;
 global using BuildingBlocks.Observability;
 global using MediatR;
