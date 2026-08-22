@@ -7,15 +7,17 @@ COPY RetailInventory.Microservices/Directory.Packages.props .
 COPY RetailInventory.Microservices/JMCloudLab.RetailInventoryPlatform.sln .
 
 # Shared Projects
+# Shared Projects
 COPY RetailInventory.Microservices/BuildingBlocks/BuildingBlocks.csproj BuildingBlocks/
 COPY RetailInventory.Microservices/BuildingBlocks.HealthChecks/BuildingBlocks.HealthChecks.csproj BuildingBlocks.HealthChecks/
 COPY RetailInventory.Microservices/BuildingBlocks.Messaging/BuildingBlocks.Messaging.csproj BuildingBlocks.Messaging/
+COPY RetailInventory.Microservices/BuildingBlocks.Messaging.RabbitMQ/BuildingBlocks.Messaging.RabbitMQ.csproj BuildingBlocks.Messaging.RabbitMQ/
 COPY RetailInventory.Microservices/BuildingBlocks.Observability/BuildingBlocks.Observability.csproj BuildingBlocks.Observability/
 COPY RetailInventory.Microservices/BuildingBlocks.OpenTelemetry/BuildingBlocks.OpenTelemetry.csproj BuildingBlocks.OpenTelemetry/
 COPY RetailInventory.Microservices/BuildingBlocks.Resilience/BuildingBlocks.Resilience.csproj BuildingBlocks.Resilience/
 
 # Service
-COPY RetailInventory.Microservices/InventarioService/InventarioService.csproj InventarioService/
+COPY RetailInventory.Microservices/InventarioService/InventarioService.csproj InventarioService//
 
 RUN dotnet restore InventarioService/InventarioService.csproj
 

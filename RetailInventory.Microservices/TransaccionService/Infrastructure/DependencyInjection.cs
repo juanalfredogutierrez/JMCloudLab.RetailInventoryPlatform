@@ -1,4 +1,5 @@
-﻿using BuildingBlocks.Resilience;
+﻿using BuildingBlocks.Messaging.RabbitMQ;
+using BuildingBlocks.Resilience;
 using BuildingBlocks.Resilience.Extensions;
 
 

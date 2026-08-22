@@ -1,4 +1,6 @@
 ﻿
+using BuildingBlocks.Messaging.RabbitMQ;
+
 namespace InventarioService.Infrastructure
 {
     public static class DependencyInjection
