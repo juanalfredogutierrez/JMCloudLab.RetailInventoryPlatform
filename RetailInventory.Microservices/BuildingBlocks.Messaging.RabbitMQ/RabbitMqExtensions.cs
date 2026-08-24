@@ -2,53 +2,30 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using RabbitMQ.Client;
 
+namespace BuildingBlocks.Messaging.RabbitMQ;
 
-namespace BuildingBlocks.Messaging.RabbitMQ
+public static class RabbitMqExtensions
 {
-    public static class RabbitMqExtensions
+    public static IServiceCollection AddRabbitMq(
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
-        public static IServiceCollection AddRabbitMq(
-            this IServiceCollection services,
-            IConfiguration configuration)
+        services.Configure<RabbitMqOptions>(
+            configuration.GetSection(RabbitMqOptions.SectionName));
+
+        services.AddSingleton(sp =>
+            sp.GetRequiredService<IOptions<RabbitMqOptions>>().Value);
+
+        services.AddSingleton<IMessagePublisher, RabbitMqPublisher>();
+
+        services.AddSingleton<IMessageConsumer>(sp =>
         {
-            services.Configure<RabbitMqOptions>(configuration.GetSection(
-                    RabbitMqOptions.SectionName));
+            var options = sp.GetRequiredService<RabbitMqOptions>();
 
-            services.AddSingleton(sp =>
-            {
-                var options =
-                    sp.GetRequiredService<
-                        IOptions<RabbitMqOptions>>().Value;
+            return new RabbitMqConsumer(options);
+        });
 
-                var factory = new ConnectionFactory
-                {
-                    HostName = options.Host,
-                    Port = options.Port,
-                    UserName = options.UserName,
-                    Password = options.Password
-                };
-
-                return factory.CreateConnectionAsync()
-                              .GetAwaiter()
-                              .GetResult();
-            });
-
-            services.AddScoped(sp =>
-            {
-                var connection =
-                    sp.GetRequiredService<IConnection>();
-
-                return connection.CreateChannelAsync()
-                                 .GetAwaiter()
-                                 .GetResult();
-            });
-
-            services.AddScoped<IMessagePublisher,
-                RabbitMqPublisher>();
-
-            return services;
-        }
+        return services;
     }
 }

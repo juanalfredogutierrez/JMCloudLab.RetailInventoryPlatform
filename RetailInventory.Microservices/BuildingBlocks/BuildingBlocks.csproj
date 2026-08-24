@@ -26,9 +26,5 @@
 		<PackageReference Include="Serilog.Sinks.Seq" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="Messaging\" />
-	</ItemGroup>
-
 
 </Project>

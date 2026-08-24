@@ -9,13 +9,16 @@ try {
 
     Write-Host "[1/3] Stopping and removing containers..." -ForegroundColor Yellow
 
-    docker compose down --rmi local --volumes --remove-orphans
+    # IMPORTANTE:
+    # No usar --volumes para conservar la data de las BD.
+    docker compose down --rmi local --remove-orphans
 
     if ($LASTEXITCODE -ne 0) {
         throw "Docker Compose cleanup failed."
     }
 
-    Write-Host "      Containers, images, volumes and network removed." -ForegroundColor Green
+    Write-Host "      Containers, local images and network removed." -ForegroundColor Green
+    Write-Host "      Database volumes preserved." -ForegroundColor Green
     Write-Host ""
 
     Write-Host "[2/3] Cleaning Docker build cache..." -ForegroundColor Yellow
@@ -42,6 +45,7 @@ try {
 
     Write-Host "========================================" -ForegroundColor Green
     Write-Host " Docker cleanup completed." -ForegroundColor Green
+    Write-Host " Database data preserved." -ForegroundColor Green
     Write-Host "========================================" -ForegroundColor Green
     Write-Host ""
 
