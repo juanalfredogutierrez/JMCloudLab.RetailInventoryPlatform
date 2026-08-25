@@ -1,6 +1,7 @@
-﻿using BuildingBlocks.Messaging.RabbiMQ;
+﻿using BuildingBlocks.Messaging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace BuildingBlocks.Messaging.RabbitMQ;
@@ -12,18 +13,28 @@ public static class RabbitMqExtensions
         IConfiguration configuration)
     {
         services.Configure<RabbitMqOptions>(
-            configuration.GetSection(RabbitMqOptions.SectionName));
+            configuration.GetSection(
+                RabbitMqOptions.SectionName));
 
         services.AddSingleton(sp =>
-            sp.GetRequiredService<IOptions<RabbitMqOptions>>().Value);
+            sp.GetRequiredService<
+                IOptions<RabbitMqOptions>>().Value);
 
-        services.AddSingleton<IMessagePublisher, RabbitMqPublisher>();
+        services.AddSingleton<IMessagePublisher,
+            RabbitMqPublisher>();
 
         services.AddSingleton<IMessageConsumer>(sp =>
         {
-            var options = sp.GetRequiredService<RabbitMqOptions>();
+            var options =
+                sp.GetRequiredService<RabbitMqOptions>();
 
-            return new RabbitMqConsumer(options);
+            var logger =
+                sp.GetRequiredService<
+                    ILogger<RabbitMqConsumer>>();
+
+            return new RabbitMqConsumer(
+                options,
+                logger);
         });
 
         return services;

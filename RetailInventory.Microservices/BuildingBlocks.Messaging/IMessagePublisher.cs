@@ -1,6 +1,8 @@
-﻿namespace BuildingBlocks.Messaging.RabbiMQ;
+﻿namespace BuildingBlocks.Messaging;
 
 public interface IMessagePublisher
 {
-    Task PublishAsync<T>(string queue, T message);
+    Task PublishAsync<T>(
+        string queue,
+        T message);
 }

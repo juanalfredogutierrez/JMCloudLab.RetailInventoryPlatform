@@ -1,5 +1,7 @@
 ﻿
 using BuildingBlocks.Messaging.RabbitMQ;
+using InventarioService.Application.Events.CompraRegistrada;
+using InventarioService.Application.Events.VentaRegistrada;
 
 namespace InventarioService.Infrastructure
 {
@@ -11,6 +13,9 @@ namespace InventarioService.Infrastructure
             services.AddDbContext<InventarioDbContext>(options =>
                 options.UseSqlServer(
                     configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddScoped<CompraRegistradaHandler>();
+            services.AddScoped<VentaRegistradaHandler>();
 
             services.AddHostedService<RabbitMqConsumerWorker>();
             services.AddRabbitMq(configuration);

@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using BuildingBlocks.Messaging;
+using System.Text.Json;
 using TransaccionService.Domain.Entities;
 using TransaccionService.Domain.Events;
 

@@ -1,17 +1,27 @@
-﻿using RabbitMQ.Client;
+﻿using BuildingBlocks.Messaging;
+using Microsoft.Extensions.Logging;
+using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
 namespace BuildingBlocks.Messaging.RabbitMQ;
 
 public sealed class RabbitMqConsumer : IMessageConsumer, IAsyncDisposable
 {
+    private const string CompraRegistradaQueue = "compra.registrada";
+    private const string VentaRegistradaQueue = "venta.registrada";
+
     private readonly RabbitMqOptions _options;
+    private readonly ILogger<RabbitMqConsumer> _logger;
+
     private IConnection? _connection;
     private IChannel? _channel;
 
-    public RabbitMqConsumer(RabbitMqOptions options)
+    public RabbitMqConsumer(
+        RabbitMqOptions options,
+        ILogger<RabbitMqConsumer> logger)
     {
         _options = options;
+        _logger = logger;
     }
 
     public async Task StartAsync(
@@ -20,28 +30,62 @@ public sealed class RabbitMqConsumer : IMessageConsumer, IAsyncDisposable
     {
         ArgumentNullException.ThrowIfNull(handler);
 
+        await ConnectAsync(cancellationToken);
+
+        await StartConsumersAsync(
+            handler,
+            cancellationToken);
+    }
+
+    private async Task ConnectAsync(
+        CancellationToken cancellationToken)
+    {
         var factory = new ConnectionFactory
         {
             HostName = _options.Host,
             Port = _options.Port,
             UserName = _options.UserName,
-            Password = _options.Password
+            Password = _options.Password,
+
+            AutomaticRecoveryEnabled = true,
+            NetworkRecoveryInterval = TimeSpan.FromSeconds(10),
+            TopologyRecoveryEnabled = true
         };
 
-        _connection = await factory.CreateConnectionAsync(cancellationToken);
+        _connection = await factory.CreateConnectionAsync(
+            cancellationToken);
 
         _channel = await _connection.CreateChannelAsync(
             cancellationToken: cancellationToken);
 
+        await ConfigureChannelAsync(
+            cancellationToken);
+
+        _logger.LogInformation(
+            "Conexión RabbitMQ Consumer establecida. " +
+            "Host: {Host}, Port: {Port}",
+            _options.Host,
+            _options.Port);
+    }
+
+    private async Task ConfigureChannelAsync(
+        CancellationToken cancellationToken)
+    {
+        if (_channel is null)
+        {
+            throw new InvalidOperationException(
+                "RabbitMQ channel no inicializado.");
+        }
+
         await _channel.QueueDeclareAsync(
-            queue: "compra.registrada",
+            queue: CompraRegistradaQueue,
             durable: true,
             exclusive: false,
             autoDelete: false,
             cancellationToken: cancellationToken);
 
         await _channel.QueueDeclareAsync(
-            queue: "venta.registrada",
+            queue: VentaRegistradaQueue,
             durable: true,
             exclusive: false,
             autoDelete: false,
@@ -52,8 +96,20 @@ public sealed class RabbitMqConsumer : IMessageConsumer, IAsyncDisposable
             prefetchCount: 10,
             global: false,
             cancellationToken: cancellationToken);
+    }
 
-        var consumer = new AsyncEventingBasicConsumer(_channel);
+    private async Task StartConsumersAsync(
+        Func<MessageContext, CancellationToken, Task> handler,
+        CancellationToken cancellationToken)
+    {
+        if (_channel is null)
+        {
+            throw new InvalidOperationException(
+                "RabbitMQ channel no inicializado.");
+        }
+
+        var consumer =
+            new AsyncEventingBasicConsumer(_channel);
 
         consumer.ReceivedAsync += async (_, ea) =>
         {
@@ -64,20 +120,39 @@ public sealed class RabbitMqConsumer : IMessageConsumer, IAsyncDisposable
                     ea.DeliveryTag,
                     ea.Body.ToArray());
 
-                await handler(context, cancellationToken);
+                await handler(
+                    context,
+                    cancellationToken);
 
                 await _channel.BasicAckAsync(
                     deliveryTag: ea.DeliveryTag,
                     multiple: false,
                     cancellationToken: cancellationToken);
+
+                _logger.LogInformation(
+                    "Mensaje procesado y confirmado. " +
+                    "RoutingKey: {RoutingKey} | DeliveryTag: {DeliveryTag}",
+                    ea.RoutingKey,
+                    ea.DeliveryTag);
             }
             catch (OperationCanceledException)
                 when (cancellationToken.IsCancellationRequested)
             {
-                // Cierre controlado.
+                _logger.LogInformation(
+                    "Procesamiento cancelado durante el cierre. " +
+                    "RoutingKey: {RoutingKey} | DeliveryTag: {DeliveryTag}",
+                    ea.RoutingKey,
+                    ea.DeliveryTag);
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogError(
+                    ex,
+                    "Error procesando mensaje RabbitMQ. " +
+                    "RoutingKey: {RoutingKey} | DeliveryTag: {DeliveryTag}",
+                    ea.RoutingKey,
+                    ea.DeliveryTag);
+
                 if (!cancellationToken.IsCancellationRequested)
                 {
                     await _channel.BasicNackAsync(
@@ -85,36 +160,65 @@ public sealed class RabbitMqConsumer : IMessageConsumer, IAsyncDisposable
                         multiple: false,
                         requeue: true,
                         cancellationToken: CancellationToken.None);
-                }
 
-                throw;
+                    _logger.LogWarning(
+                        "Mensaje enviado nuevamente a la cola. " +
+                        "RoutingKey: {RoutingKey} | DeliveryTag: {DeliveryTag}",
+                        ea.RoutingKey,
+                        ea.DeliveryTag);
+                }
             }
         };
 
         await _channel.BasicConsumeAsync(
-            queue: "compra.registrada",
+            queue: CompraRegistradaQueue,
             autoAck: false,
             consumer: consumer,
             cancellationToken: cancellationToken);
 
         await _channel.BasicConsumeAsync(
-            queue: "venta.registrada",
+            queue: VentaRegistradaQueue,
             autoAck: false,
             consumer: consumer,
             cancellationToken: cancellationToken);
+
+        _logger.LogInformation(
+            "Consumers registrados. Queues: {CompraQueue}, {VentaQueue}",
+            CompraRegistradaQueue,
+            VentaRegistradaQueue);
     }
 
     public async ValueTask DisposeAsync()
     {
         if (_channel is not null)
         {
-            await _channel.DisposeAsync();
+            try
+            {
+                await _channel.DisposeAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(
+                    ex,
+                    "Error cerrando RabbitMQ channel.");
+            }
+
             _channel = null;
         }
 
         if (_connection is not null)
         {
-            await _connection.DisposeAsync();
+            try
+            {
+                await _connection.DisposeAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(
+                    ex,
+                    "Error cerrando RabbitMQ connection.");
+            }
+
             _connection = null;
         }
     }
