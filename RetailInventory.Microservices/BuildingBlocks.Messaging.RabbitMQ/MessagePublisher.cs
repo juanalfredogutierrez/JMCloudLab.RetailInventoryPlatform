@@ -1,6 +1,4 @@
 ﻿using BuildingBlocks.Messaging;
-using BuildingBlocks.Observability.Constants;
-using BuildingBlocks.Observability.Services;
 using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using System.Text;
@@ -11,53 +9,77 @@ namespace BuildingBlocks.Messaging.RabbitMQ;
 public sealed class RabbitMqPublisher : IMessagePublisher, IAsyncDisposable
 {
     private readonly RabbitMqOptions _options;
-    private readonly ICorrelationContext _correlationContext;
     private readonly ILogger<RabbitMqPublisher> _logger;
+    private readonly SemaphoreSlim _publishLock = new(1, 1);
 
-    private IConnection? _connection;
-    private IChannel? _channel;
+    private IConnection _connection;
+    private IChannel _channel;
 
     public RabbitMqPublisher(
         RabbitMqOptions options,
-        ICorrelationContext correlationContext,
         ILogger<RabbitMqPublisher> logger)
     {
         _options = options;
-        _correlationContext = correlationContext;
         _logger = logger;
     }
 
     public async Task PublishAsync<T>(
-        string queue,
-        T message)
+        string messageType,
+        T message,
+        CancellationToken cancellationToken = default)
     {
-        await EnsureConnectionAsync();
+        ArgumentException.ThrowIfNullOrWhiteSpace(messageType);
+        ArgumentNullException.ThrowIfNull(message);
 
-        var properties = new BasicProperties
+        await _publishLock.WaitAsync(cancellationToken);
+
+        try
         {
-            Headers = new Dictionary<string, object>
+            await EnsureConnectionAsync(cancellationToken);
+
+            var body = Encoding.UTF8.GetBytes(
+                JsonSerializer.Serialize(message));
+
+            var properties = new BasicProperties
             {
-                [HeaderNames.CorrelationId] =
-                    _correlationContext.CorrelationId
-            }
-        };
+                ContentType = "application/json",
+                Persistent = true,
+                MessageId = TryGetEventId(message),
+                Headers = BuildHeaders(message)
+            };
 
-        var body = Encoding.UTF8.GetBytes(
-            JsonSerializer.Serialize(message));
+            await _channel!.BasicPublishAsync(
+                exchange: string.Empty,
+                routingKey: messageType,
+                mandatory: true,
+                basicProperties: properties,
+                body: body,
+                cancellationToken: cancellationToken);
 
-        await _channel!.BasicPublishAsync(
-            exchange: string.Empty,
-            routingKey: queue,
-            mandatory: false,
-            basicProperties: properties,
-            body: body);
+            _logger.LogInformation(
+                "Mensaje confirmado por RabbitMQ. " +
+                "MessageType: {MessageType} | MessageId: {MessageId}",
+                messageType,
+                properties.MessageId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                ex,
+                "Error publicando mensaje en RabbitMQ. " +
+                "MessageType: {MessageType}",
+                messageType);
 
-        _logger.LogInformation(
-            "Mensaje publicado en RabbitMQ. RoutingKey: {RoutingKey}",
-            queue);
+            throw;
+        }
+        finally
+        {
+            _publishLock.Release();
+        }
     }
 
-    private async Task EnsureConnectionAsync()
+    private async Task EnsureConnectionAsync(
+        CancellationToken cancellationToken)
     {
         if (_connection?.IsOpen == true &&
             _channel?.IsOpen == true)
@@ -75,19 +97,46 @@ public sealed class RabbitMqPublisher : IMessagePublisher, IAsyncDisposable
             Password = _options.Password,
 
             AutomaticRecoveryEnabled = true,
-            NetworkRecoveryInterval = TimeSpan.FromSeconds(10),
-            TopologyRecoveryEnabled = true
+            TopologyRecoveryEnabled = true,
+            NetworkRecoveryInterval = TimeSpan.FromSeconds(10)
         };
 
-        _connection = await factory.CreateConnectionAsync();
+        _connection = await factory.CreateConnectionAsync(
+            cancellationToken);
 
-        _channel = await _connection.CreateChannelAsync();
+        _channel = await _connection.CreateChannelAsync(
+            new CreateChannelOptions(
+                publisherConfirmationsEnabled: true,
+                publisherConfirmationTrackingEnabled: true),
+            cancellationToken);
 
         _logger.LogInformation(
             "Conexión RabbitMQ Publisher establecida. " +
             "Host: {Host}, Port: {Port}",
             _options.Host,
             _options.Port);
+    }
+
+    private static string TryGetEventId<T>(T message)
+    {   
+        return message is IntegrationEvent integrationEvent
+            ? integrationEvent.EventId.ToString()
+            : null;
+    }
+
+    private static Dictionary<string, object> BuildHeaders<T>(
+        T message)
+    {
+        if (message is not IntegrationEvent integrationEvent ||
+            string.IsNullOrWhiteSpace(integrationEvent.TraceId))
+        {
+            return null;
+        }
+
+        return new Dictionary<string, object>
+        {
+            ["trace-id"] = integrationEvent.TraceId
+        };
     }
 
     private async Task DisposeConnectionAsync()
@@ -98,9 +147,11 @@ public sealed class RabbitMqPublisher : IMessagePublisher, IAsyncDisposable
             {
                 await _channel.DisposeAsync();
             }
-            catch
+            catch (Exception ex)
             {
-                // La conexión puede estar ya cerrada.
+                _logger.LogDebug(
+                    ex,
+                    "Error liberando RabbitMQ channel.");
             }
 
             _channel = null;
@@ -112,9 +163,11 @@ public sealed class RabbitMqPublisher : IMessagePublisher, IAsyncDisposable
             {
                 await _connection.DisposeAsync();
             }
-            catch
+            catch (Exception ex)
             {
-                // La conexión puede estar ya cerrada.
+                _logger.LogDebug(
+                    ex,
+                    "Error liberando RabbitMQ connection.");
             }
 
             _connection = null;
@@ -123,6 +176,8 @@ public sealed class RabbitMqPublisher : IMessagePublisher, IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
+        _publishLock.Dispose();
+
         await DisposeConnectionAsync();
     }
 }

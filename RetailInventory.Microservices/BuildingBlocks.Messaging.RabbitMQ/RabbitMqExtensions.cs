@@ -1,5 +1,4 @@
-﻿using BuildingBlocks.Messaging;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -20,7 +19,8 @@ public static class RabbitMqExtensions
             sp.GetRequiredService<
                 IOptions<RabbitMqOptions>>().Value);
 
-        services.AddSingleton<IMessagePublisher,
+        services.AddSingleton<
+            IMessagePublisher,
             RabbitMqPublisher>();
 
         services.AddSingleton<IMessageConsumer>(sp =>

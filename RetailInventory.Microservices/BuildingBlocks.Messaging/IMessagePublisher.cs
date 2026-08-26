@@ -3,6 +3,7 @@
 public interface IMessagePublisher
 {
     Task PublishAsync<T>(
-        string queue,
-        T message);
+        string messageType,
+        T message,
+        CancellationToken cancellationToken = default);
 }

@@ -1,7 +1,7 @@
-﻿using BuildingBlocks.Messaging;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using System.Text;
 
 namespace BuildingBlocks.Messaging.RabbitMQ;
 
@@ -10,11 +10,14 @@ public sealed class RabbitMqConsumer : IMessageConsumer, IAsyncDisposable
     private const string CompraRegistradaQueue = "compra.registrada";
     private const string VentaRegistradaQueue = "venta.registrada";
 
+    private const int InitialRetryDelaySeconds = 5;
+    private const int MaxRetryDelaySeconds = 30;
+
     private readonly RabbitMqOptions _options;
     private readonly ILogger<RabbitMqConsumer> _logger;
 
-    private IConnection? _connection;
-    private IChannel? _channel;
+    private IConnection _connection;
+    private IChannel _channel;
 
     public RabbitMqConsumer(
         RabbitMqOptions options,
@@ -30,11 +33,48 @@ public sealed class RabbitMqConsumer : IMessageConsumer, IAsyncDisposable
     {
         ArgumentNullException.ThrowIfNull(handler);
 
-        await ConnectAsync(cancellationToken);
+        var retryDelay = InitialRetryDelaySeconds;
 
-        await StartConsumersAsync(
-            handler,
-            cancellationToken);
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            try
+            {
+                await ConnectAsync(
+                    cancellationToken);
+
+                await StartConsumersAsync(
+                    handler,
+                    cancellationToken);
+
+                _logger.LogInformation(
+                    "RabbitMQ Consumer iniciado correctamente.");
+
+                return;
+            }
+            catch (OperationCanceledException)
+                when (cancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "No fue posible establecer el consumidor RabbitMQ. " +
+                    "Nuevo intento en {RetryDelaySeconds} segundos.",
+                    retryDelay);
+
+                await DisposeConnectionAsync();
+
+                await Task.Delay(
+                    TimeSpan.FromSeconds(retryDelay),
+                    cancellationToken);
+
+                retryDelay = Math.Min(
+                    retryDelay * 2,
+                    MaxRetryDelaySeconds);
+            }
+        }
     }
 
     private async Task ConnectAsync(
@@ -48,12 +88,15 @@ public sealed class RabbitMqConsumer : IMessageConsumer, IAsyncDisposable
             Password = _options.Password,
 
             AutomaticRecoveryEnabled = true,
-            NetworkRecoveryInterval = TimeSpan.FromSeconds(10),
-            TopologyRecoveryEnabled = true
+            TopologyRecoveryEnabled = true,
+            NetworkRecoveryInterval = TimeSpan.FromSeconds(10)
         };
 
         _connection = await factory.CreateConnectionAsync(
             cancellationToken);
+
+        _connection.ConnectionShutdownAsync +=
+            OnConnectionShutdownAsync;
 
         _channel = await _connection.CreateChannelAsync(
             cancellationToken: cancellationToken);
@@ -97,7 +140,6 @@ public sealed class RabbitMqConsumer : IMessageConsumer, IAsyncDisposable
             global: false,
             cancellationToken: cancellationToken);
     }
-
     private async Task StartConsumersAsync(
         Func<MessageContext, CancellationToken, Task> handler,
         CancellationToken cancellationToken)
@@ -115,10 +157,24 @@ public sealed class RabbitMqConsumer : IMessageConsumer, IAsyncDisposable
         {
             try
             {
+                var headers =
+                    ExtractHeaders(
+                        ea.BasicProperties?.Headers);
+
+                var messageId =
+                    ea.BasicProperties?.MessageId
+                    ?? ea.DeliveryTag.ToString();
+
+                var correlationId =
+                    ExtractCorrelationId(
+                        ea.BasicProperties?.Headers);
+
                 var context = new MessageContext(
-                    ea.RoutingKey,
-                    ea.DeliveryTag,
-                    ea.Body.ToArray());
+                    MessageId: messageId,
+                    MessageType: ea.RoutingKey,
+                    Body: ea.Body.ToArray(),
+                    Headers: headers,
+                    CorrelationId: correlationId);
 
                 await handler(
                     context,
@@ -131,8 +187,9 @@ public sealed class RabbitMqConsumer : IMessageConsumer, IAsyncDisposable
 
                 _logger.LogInformation(
                     "Mensaje procesado y confirmado. " +
-                    "RoutingKey: {RoutingKey} | DeliveryTag: {DeliveryTag}",
-                    ea.RoutingKey,
+                    "MessageType: {MessageType} | MessageId: {MessageId} | DeliveryTag: {DeliveryTag}",
+                    context.MessageType,
+                    context.MessageId,
                     ea.DeliveryTag);
             }
             catch (OperationCanceledException)
@@ -162,7 +219,7 @@ public sealed class RabbitMqConsumer : IMessageConsumer, IAsyncDisposable
                         cancellationToken: CancellationToken.None);
 
                     _logger.LogWarning(
-                        "Mensaje enviado nuevamente a la cola. " +
+                        "Mensaje reenviado a la cola para reintento. " +
                         "RoutingKey: {RoutingKey} | DeliveryTag: {DeliveryTag}",
                         ea.RoutingKey,
                         ea.DeliveryTag);
@@ -183,12 +240,25 @@ public sealed class RabbitMqConsumer : IMessageConsumer, IAsyncDisposable
             cancellationToken: cancellationToken);
 
         _logger.LogInformation(
-            "Consumers registrados. Queues: {CompraQueue}, {VentaQueue}",
+            "Consumers registrados. " +
+            "Queues: {CompraQueue}, {VentaQueue}",
             CompraRegistradaQueue,
             VentaRegistradaQueue);
+    }   
+    private Task OnConnectionShutdownAsync(
+        object sender,
+        ShutdownEventArgs args)
+    {
+        _logger.LogWarning(
+            "Conexión RabbitMQ cerrada. " +
+            "Code: {ReplyCode}, Text: {ReplyText}",
+            args.ReplyCode,
+            args.ReplyText);
+
+        return Task.CompletedTask;
     }
 
-    public async ValueTask DisposeAsync()
+    private async Task DisposeConnectionAsync()
     {
         if (_channel is not null)
         {
@@ -198,9 +268,9 @@ public sealed class RabbitMqConsumer : IMessageConsumer, IAsyncDisposable
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(
+                _logger.LogDebug(
                     ex,
-                    "Error cerrando RabbitMQ channel.");
+                    "Error al liberar RabbitMQ channel.");
             }
 
             _channel = null;
@@ -214,12 +284,61 @@ public sealed class RabbitMqConsumer : IMessageConsumer, IAsyncDisposable
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(
+                _logger.LogDebug(
                     ex,
-                    "Error cerrando RabbitMQ connection.");
+                    "Error al liberar RabbitMQ connection.");
             }
 
             _connection = null;
         }
     }
+
+    private static IReadOnlyDictionary<string, string>? ExtractHeaders(
+    IDictionary<string, object> headers)
+    {
+        if (headers is null || headers.Count == 0)
+            return null;
+
+        var result = new Dictionary<string, string>(
+            StringComparer.OrdinalIgnoreCase);
+
+        foreach (var header in headers)
+        {
+            if (header.Value is byte[] bytes)
+            {
+                result[header.Key] =
+                    Encoding.UTF8.GetString(bytes);
+            }
+            else if (header.Value is not null)
+            {
+                result[header.Key] =
+                    header.Value.ToString() ?? string.Empty;
+            }
+        }
+
+        return result;
+    }
+
+    private static string ExtractCorrelationId(
+        IDictionary<string, object> headers)
+    {
+        if (headers is null ||
+            !headers.TryGetValue("trace-id", out var value) ||
+            value is null)
+        {
+            return null;
+        }
+
+        return value is byte[] bytes
+            ? Encoding.UTF8.GetString(bytes)
+            : value.ToString();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await DisposeConnectionAsync();
+    }
+
+
+
 }

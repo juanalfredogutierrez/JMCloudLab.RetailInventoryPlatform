@@ -1,12 +1,11 @@
-﻿global using InventarioService;
-global using BuildingBlocks;
+﻿global using BuildingBlocks;
 global using BuildingBlocks.Application;
 global using BuildingBlocks.Middleware;
 global using BuildingBlocks.Observability;
+global using InventarioService;
 global using InventarioService.Application;
-global using InventarioService.Infrastructure.Messaging;
+global using InventarioService.Infrastructure;
+global using InventarioService.Infrastructure.Extensions;
 global using InventarioService.Infrastructure.Persistence;
 global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.EntityFrameworkCore;
-global using InventarioService.Infrastructure;
-global using InventarioService.Infrastructure.Extensions;

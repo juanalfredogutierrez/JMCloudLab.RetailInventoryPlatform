@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.Messaging.RabbiMQ;
+﻿using BuildingBlocks.Messaging;
 
 namespace InventarioService.Domain.Events;
 

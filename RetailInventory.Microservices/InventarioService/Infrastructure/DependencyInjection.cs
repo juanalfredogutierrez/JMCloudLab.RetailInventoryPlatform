@@ -2,6 +2,7 @@
 using BuildingBlocks.Messaging.RabbitMQ;
 using InventarioService.Application.Events.CompraRegistrada;
 using InventarioService.Application.Events.VentaRegistrada;
+using InventarioService.Infrastructure.Messaging;
 
 namespace InventarioService.Infrastructure
 {
