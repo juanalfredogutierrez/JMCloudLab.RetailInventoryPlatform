@@ -6,3 +6,5 @@ public sealed record MessageContext(
     byte[] Body,
     IReadOnlyDictionary<string, string> Headers = null,
     string CorrelationId = null);
+
+

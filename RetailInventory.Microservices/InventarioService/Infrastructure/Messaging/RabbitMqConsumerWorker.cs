@@ -26,8 +26,7 @@ namespace InventarioService.Infrastructure.Messaging
         protected override async Task ExecuteAsync(
             CancellationToken stoppingToken)
         {
-            _logger.LogInformation(
-                "RabbitMQ Consumer Worker iniciado.");
+            _logger.LogInformation("RabbitMQ Consumer Worker iniciado.");
 
             await _messageConsumer.StartAsync(
                 ProcesarMensajeAsync,

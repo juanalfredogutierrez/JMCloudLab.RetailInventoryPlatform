@@ -89,9 +89,6 @@ namespace InventarioService.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EventoId")
-                        .IsUnique();
-
                     b.ToTable("EventoProcesado", (string)null);
                 });
 

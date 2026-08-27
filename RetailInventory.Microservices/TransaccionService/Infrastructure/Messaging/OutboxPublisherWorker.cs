@@ -1,5 +1,4 @@
-﻿using BuildingBlocks.Messaging;
-using System.Text.Json;
+﻿    using System.Text.Json;
 using TransaccionService.Domain.Entities;
 using TransaccionService.Domain.Events;
 
@@ -86,8 +85,7 @@ public sealed class OutboxPublisherWorker : BackgroundService
 
                 if (compraEvent is null)
                 {
-                    throw new InvalidOperationException(
-                        $"Payload inválido para {message.EventType}. MessageId: {message.Id}");
+                    throw new InvalidOperationException($"Payload inválido para {message.EventType}. MessageId: {message.Id}");
                 }
 
                 await publisher.PublishAsync("compra.registrada", compraEvent);
@@ -100,8 +98,7 @@ public sealed class OutboxPublisherWorker : BackgroundService
 
                 if (ventaEvent is null)
                 {
-                    throw new InvalidOperationException(
-                        $"Payload inválido para {message.EventType}. MessageId: {message.Id}");
+                    throw new InvalidOperationException($"Payload inválido para {message.EventType}. MessageId: {message.Id}");
                 }
 
                 await publisher.PublishAsync("venta.registrada", ventaEvent);   
