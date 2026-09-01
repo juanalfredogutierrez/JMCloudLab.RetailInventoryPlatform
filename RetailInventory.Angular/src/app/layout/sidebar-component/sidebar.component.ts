@@ -3,15 +3,14 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
 import {
-  LucideAngularModule,
-  LayoutDashboard,
-  Package,
-  ShoppingCart,
-  ReceiptText,
-  Boxes,
-  ChevronLeft,
-  ChevronRight
-} from 'lucide-angular';
+  LucideChevronLeft,
+  LucideChevronRight,
+  LucideDynamicIcon,
+  LucideLayoutDashboard,
+  LucidePackage,
+  LucideReceiptText,
+  LucideShoppingCart
+} from '@lucide/angular';
 
 interface MenuItem {
   label: string;
@@ -26,7 +25,7 @@ interface MenuItem {
     CommonModule,
     RouterLink,
     RouterLinkActive,
-    LucideAngularModule
+    LucideDynamicIcon
   ],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss'
@@ -38,15 +37,31 @@ export class SidebarComponent {
   @Output() toggleSidebar = new EventEmitter<void>();
   @Output() closeMobileSidebar = new EventEmitter<void>();
 
-  readonly ChevronLeft = ChevronLeft;
-  readonly ChevronRight = ChevronRight;
+  readonly ChevronLeft = LucideChevronLeft;
+  readonly ChevronRight = LucideChevronRight;
 
   menuItems: MenuItem[] = [
-    { label: 'Dashboard', route: '/dashboard', icon: LayoutDashboard },
-    { label: 'Productos', route: '/productos', icon: Package },
-    { label: 'Compras', route: '/compras', icon: ShoppingCart },
-    { label: 'Ventas', route: '/ventas', icon: ReceiptText },
-    // { label: 'Kardex', route: '/kardex', icon: Boxes }
+    {
+      label: 'Dashboard',
+      route: '/dashboard',
+      icon: LucideLayoutDashboard
+    },
+    {
+      label: 'Productos',
+      route: '/productos',
+      icon: LucidePackage
+    },
+    {
+      label: 'Compras',
+      route: '/compras',
+      icon: LucideShoppingCart
+    },
+    {
+      label: 'Ventas',
+      route: '/ventas',
+      icon: LucideReceiptText
+    }
+    // { label: 'Kardex', route: '/kardex', icon: LucideBoxes }
   ];
 
   handleToggleSidebar(): void {

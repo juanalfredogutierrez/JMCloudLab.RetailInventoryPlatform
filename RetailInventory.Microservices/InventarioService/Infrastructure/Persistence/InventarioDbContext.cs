@@ -15,6 +15,14 @@ public class InventarioDbContext : BaseDbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<EventoProcesado>(entity =>
+        {
+            entity.HasKey(x => x.Id);
+
+            entity.HasIndex(x => x.EventoId)
+                .IsUnique();
+        });
+
         modelBuilder.Entity<MovimientoInventario>().ToTable("MovimientoInventario");
         modelBuilder.Entity<DetalleMovimientoInventario>().ToTable("DetalleMovimientoInventario");
         modelBuilder.Entity<ExistenciaProducto>().ToTable("ExistenciaProducto");

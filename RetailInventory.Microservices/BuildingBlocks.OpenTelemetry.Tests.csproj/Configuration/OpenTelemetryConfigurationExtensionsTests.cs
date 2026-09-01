@@ -4,7 +4,6 @@ using BuildingBlocks.OpenTelemetry.Tests.TestHelpers;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Xunit;
 
 namespace BuildingBlocks.OpenTelemetry.Tests.Configuration;
 
@@ -81,7 +80,7 @@ public class OpenTelemetryConfigurationExtensionsTests
     {
         // Arrange
         var configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?>
+            .AddInMemoryCollection(new Dictionary<string, string>
             {
                 [$"{OpenTelemetryOptions.SectionName}:ServiceNamespace"] = string.Empty,
                 [$"{OpenTelemetryOptions.SectionName}:ServiceVersion"] = "1.0.0",

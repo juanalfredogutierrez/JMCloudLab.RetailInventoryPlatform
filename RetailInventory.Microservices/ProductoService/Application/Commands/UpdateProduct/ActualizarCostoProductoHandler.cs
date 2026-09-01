@@ -1,9 +1,4 @@
-﻿using BuildingBlocks.Application;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using ProductoService.Infrastructure.Persistence;
-
-namespace ProductoService.Application.Commands.UpdateProduct
+﻿namespace ProductoService.Application.Commands.UpdateProduct
 {
     public class ActualizarCostoProductoHandler
       : IRequestHandler<ActualizarCostoProductoCommand, Result<Guid>>

@@ -1,4 +1,6 @@
-﻿namespace InventarioService.Domain.Events;
+﻿using BuildingBlocks.Messaging;
+
+namespace InventarioService.Domain.Events;
 
 public class VentaRegistradaEvent: IntegrationEvent
 {

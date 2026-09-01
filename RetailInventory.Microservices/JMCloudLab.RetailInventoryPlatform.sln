@@ -49,6 +49,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildingBlocks.Observabilit
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildingBlocks.OpenTelemetry.Tests", "BuildingBlocks.OpenTelemetry.Tests.csproj\BuildingBlocks.OpenTelemetry.Tests.csproj", "{9187A7C5-ED30-4B91-A8EB-9E731C3E35CC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildingBlocks.Messaging.RabbitMQ", "BuildingBlocks.Messaging.RabbitMQ\BuildingBlocks.Messaging.RabbitMQ.csproj", "{4E409F5C-DDEF-4F5E-9CC5-0ADC1AADB99C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -127,6 +129,10 @@ Global
 		{9187A7C5-ED30-4B91-A8EB-9E731C3E35CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9187A7C5-ED30-4B91-A8EB-9E731C3E35CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9187A7C5-ED30-4B91-A8EB-9E731C3E35CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4E409F5C-DDEF-4F5E-9CC5-0ADC1AADB99C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E409F5C-DDEF-4F5E-9CC5-0ADC1AADB99C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4E409F5C-DDEF-4F5E-9CC5-0ADC1AADB99C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4E409F5C-DDEF-4F5E-9CC5-0ADC1AADB99C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -153,6 +159,7 @@ Global
 		{A730401C-73C7-44C4-BC27-01AA8D61F31F} = {0B9B6195-0638-4390-9053-7C9B55BEEA08}
 		{31CFBBC2-5F4D-4FD0-8AA1-1C6ECEBF5CC1} = {0B9B6195-0638-4390-9053-7C9B55BEEA08}
 		{9187A7C5-ED30-4B91-A8EB-9E731C3E35CC} = {0B9B6195-0638-4390-9053-7C9B55BEEA08}
+		{4E409F5C-DDEF-4F5E-9CC5-0ADC1AADB99C} = {EE869D5A-4C6F-4663-89BF-6B8A4BDBCB39}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {197D4ABD-30B0-4E09-9214-684121DB7E0C}

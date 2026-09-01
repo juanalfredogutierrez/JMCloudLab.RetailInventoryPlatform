@@ -22,12 +22,13 @@ RUN npm ci
 #
 # Copy Angular source
 #
-COPY RetailInventory.Angular/ .
+COPY RetailInventory.Angular/ ./
 
 #
 # Build Angular
 #
 RUN npm run build -- --configuration production
+
 
 ############################################################
 # Stage 2 - Runtime
@@ -48,18 +49,10 @@ LABEL version="${APP_VERSION}"
 RUN apk add --no-cache gettext
 
 #
-# Nginx
+# Nginx configuration
 #
 COPY RetailInventory.Angular/docker/nginx.conf \
      /etc/nginx/conf.d/default.conf
-
-#
-# Startup script
-#
-COPY RetailInventory.Angular/docker/entrypoint.sh \
-     /entrypoint.sh
-
-RUN chmod +x /entrypoint.sh
 
 #
 # Angular application
@@ -68,8 +61,12 @@ COPY --from=build \
      /app/dist/JMCloudLab.RetailInventoryPlatform.Web/browser \
      /usr/share/nginx/html
 
+#
+# Expose HTTP port
+#
 EXPOSE 80
 
-ENTRYPOINT ["/entrypoint.sh"]
-
-CMD ["nginx","-g","daemon off;"]
+#
+# Start Nginx
+#
+CMD ["nginx", "-g", "daemon off;"]

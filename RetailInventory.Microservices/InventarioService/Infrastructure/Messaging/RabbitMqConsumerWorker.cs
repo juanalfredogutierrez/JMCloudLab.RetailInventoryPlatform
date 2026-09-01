@@ -1,214 +1,89 @@
-﻿using InventarioService.Application.Commands.RegistrarEntrada;
-using InventarioService.Application.Commands.RegistrarSalida;
-using BuildingBlocks.Observability.Services;
-using InventarioService.Domain.Events;
-using MediatR;
-using Microsoft.Extensions.Options;
-using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
-using System.Text;
-using System.Text.Json;
-
-namespace InventarioService.Infrastructure.Messaging;
-
-public sealed class RabbitMqConsumerWorker : BackgroundService
+﻿using BuildingBlocks.Messaging;
+using InventarioService.Application.Events.CompraRegistrada;
+using InventarioService.Application.Events.VentaRegistrada;
+namespace InventarioService.Infrastructure.Messaging
 {
-    private readonly IServiceScopeFactory _scopeFactory;
-    private readonly RabbitMqOptions _rabbitMqOptions;
-    private readonly ILogger<RabbitMqConsumerWorker> _logger;
-    private IConnection _connection;
-    private IChannel _channel;
 
-    public RabbitMqConsumerWorker(
-        IServiceScopeFactory scopeFactory,
-        IOptions<RabbitMqOptions> rabbitMqOptions,
-        ILogger<RabbitMqConsumerWorker> logger)
+    public sealed class RabbitMqConsumerWorker : BackgroundService
     {
-        _scopeFactory = scopeFactory;
-        _rabbitMqOptions = rabbitMqOptions.Value;
-        _logger = logger;
-    }
-    public override async Task StartAsync(CancellationToken cancellationToken)
-    {
-        var factory = new ConnectionFactory
+        private const string CompraRegistradaRoutingKey = "compra.registrada";
+        private const string VentaRegistradaRoutingKey = "venta.registrada";
+
+        private readonly IMessageConsumer _messageConsumer;
+        private readonly IServiceScopeFactory _scopeFactory;
+        private readonly ILogger<RabbitMqConsumerWorker> _logger;
+
+        public RabbitMqConsumerWorker(
+            IMessageConsumer messageConsumer,
+            IServiceScopeFactory scopeFactory,
+            ILogger<RabbitMqConsumerWorker> logger)
         {
-            HostName = _rabbitMqOptions.Host,
-            Port = _rabbitMqOptions.Port,
-            UserName = _rabbitMqOptions.UserName,
-            Password = _rabbitMqOptions.Password
-        };
+            _messageConsumer = messageConsumer;
+            _scopeFactory = scopeFactory;
+            _logger = logger;
+        }
 
-        _connection = await factory.CreateConnectionAsync(cancellationToken);
-        _channel = await _connection.CreateChannelAsync(cancellationToken: cancellationToken);
-
-        await _channel.QueueDeclareAsync(
-            queue: "compra.registrada",
-            durable: true,
-            exclusive: false,
-            autoDelete: false,
-            cancellationToken: cancellationToken);
-
-        await _channel.QueueDeclareAsync(
-            queue: "venta.registrada",
-            durable: true,
-            exclusive: false,
-            autoDelete: false,
-            cancellationToken: cancellationToken);
-
-        await _channel.BasicQosAsync(
-            prefetchSize: 0,
-            prefetchCount: 10,
-            global: false,
-            cancellationToken: cancellationToken);
-
-
-        _logger.LogInformation("RabbitMQ Consumer iniciado. Queues: {Queues}",
-                              "compra.registrada, venta.registrada");
-
-        await base.StartAsync(cancellationToken);
-    }
-
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-    {
-        if (_channel is null)   
-            throw new InvalidOperationException("RabbitMQ channel no inicializado.");
-
-        var consumer = new AsyncEventingBasicConsumer(_channel);
-
-        consumer.ReceivedAsync += async (_, ea) =>
+        protected override async Task ExecuteAsync(
+            CancellationToken stoppingToken)
         {
+            _logger.LogInformation("RabbitMQ Consumer Worker iniciado.");
+
+            await _messageConsumer.StartAsync(
+                ProcesarMensajeAsync,
+                stoppingToken);
+
             try
             {
-                await ProcesarMensaje(ea);
-
-                await _channel.BasicAckAsync(
-                    deliveryTag: ea.DeliveryTag,
-                    multiple: false,
-                    cancellationToken: stoppingToken);
+                await Task.Delay(
+                    Timeout.Infinite,
+                    stoppingToken);
             }
-            catch (Exception ex)
+            catch (OperationCanceledException)
+                when (stoppingToken.IsCancellationRequested)
             {
-                _logger.LogError(ex, "Error procesando mensaje RabbitMQ. RoutingKey: {RoutingKey}", ea.RoutingKey);
-
-                await _channel.BasicNackAsync(
-                    deliveryTag: ea.DeliveryTag,
-                    multiple: false,
-                    requeue: true,
-                    cancellationToken: stoppingToken);
+                _logger.LogInformation(
+                    "RabbitMQ Consumer Worker detenido.");
             }
-        };
-
-        await _channel.BasicConsumeAsync(
-            queue: "compra.registrada",
-            autoAck: false,
-            consumer: consumer,
-            cancellationToken: stoppingToken);
-
-        await _channel.BasicConsumeAsync(
-            queue: "venta.registrada",
-            autoAck: false,
-            consumer: consumer,
-            cancellationToken: stoppingToken);
-
-        await Task.Delay(Timeout.Infinite, stoppingToken);
-    }
-
-    private async Task ProcesarMensaje(BasicDeliverEventArgs ea)
-    {
-        var message = Encoding.UTF8.GetString(ea.Body.ToArray());
-
-        await using var scope = _scopeFactory.CreateAsyncScope();
-        var db = scope.ServiceProvider.GetRequiredService<InventarioDbContext>();
-        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-        var correlationContext = scope.ServiceProvider.GetRequiredService<ICorrelationContext>();
-
-        switch (ea.RoutingKey)
-        {
-            case "compra.registrada":
-                await ProcesarCompra(message, db, mediator, correlationContext);
-                break;
-
-            case "venta.registrada":
-                await ProcesarVenta(message, db, mediator, correlationContext);
-                break;
         }
-    }
 
-    private async Task ProcesarCompra(string message, InventarioDbContext db, IMediator mediator, ICorrelationContext correlationContext)
-    {
-        var evt = JsonSerializer.Deserialize<CompraRegistradaEvent>(message);
-
-        if (evt is null)
-            return;
-
-        correlationContext.SetCorrelationId(evt.TraceId);
-
-        if (await ExisteEvento(db, evt.EventId))
-            return;
-
-        await GuardarEvento(db, evt.EventId, nameof(CompraRegistradaEvent), evt.NumeroCompra,
-    JsonSerializer.Serialize(evt));
-
-        foreach (var item in evt.Items)
+        private async Task ProcesarMensajeAsync(
+            MessageContext context,
+            CancellationToken cancellationToken)
         {
-            await mediator.Send(new RegistrarEntradaCommand(
-                item.ProductoId,
-                item.Cantidad,
-                evt.NumeroCompra));
+            await using var scope =
+                _scopeFactory.CreateAsyncScope();
+
+            var compraHandler =
+                scope.ServiceProvider
+                    .GetRequiredService<CompraRegistradaHandler>();
+
+            var ventaHandler =
+                scope.ServiceProvider
+                    .GetRequiredService<VentaRegistradaHandler>();
+
+            switch (context.MessageType)
+            {
+                case CompraRegistradaRoutingKey:
+
+                    await compraHandler.HandleAsync(
+                        context,
+                        cancellationToken);
+
+                    break;
+
+                case VentaRegistradaRoutingKey:
+
+                    await ventaHandler.HandleAsync(
+                        context,
+                        cancellationToken);
+
+                    break;
+
+                default:
+
+                    throw new InvalidOperationException(
+                        $"MessageType no soportado: {context.MessageType}");
+            }
         }
-    }
-
-    private async Task ProcesarVenta(string message, InventarioDbContext db, IMediator mediator, ICorrelationContext correlationContext)
-    {
-        var evt = JsonSerializer.Deserialize<VentaRegistradaEvent>(message);
-
-        if (evt is null)
-            return;
-
-        correlationContext.SetCorrelationId(evt.TraceId);
-
-        if (await ExisteEvento(db, evt.EventId))
-            return;
-
-        await GuardarEvento(db, evt.EventId, nameof(VentaRegistradaEvent), evt.NumeroVenta,
-    JsonSerializer.Serialize(evt));
-
-        foreach (var item in evt.Items)
-        {
-            await mediator.Send(new RegistrarSalidaCommand(item.ProductoId, item.Cantidad));
-        }
-    }
-
-    private static Task<bool> ExisteEvento(InventarioDbContext db, Guid eventId)
-    {
-        return db.EventosProcesados
-            .AnyAsync(x => x.EventoId == eventId);
-    }
-
-    private static async Task GuardarEvento(InventarioDbContext db, Guid eventId, string nombreEvento, string referenciaNegocio, string payload)
-    {
-        db.EventosProcesados.Add(new Domain.Entities.EventoProcesado
-        {
-            EventoId = eventId,
-            NombreEvento = nombreEvento,
-            ReferenciaNegocio = referenciaNegocio,
-            Payload = payload,
-            FechaProcesamiento = DateTime.UtcNow
-        });
-
-        await db.SaveChangesAsync();
-    }
-
-    public override async Task StopAsync(CancellationToken cancellationToken)
-    {
-        _logger.LogInformation("RabbitMQ Consumer detenido.");
-
-        if (_channel is not null)
-            await _channel.DisposeAsync();
-
-        if (_connection is not null)
-            await _connection.DisposeAsync();
-
-        await base.StopAsync(cancellationToken);
     }
 }

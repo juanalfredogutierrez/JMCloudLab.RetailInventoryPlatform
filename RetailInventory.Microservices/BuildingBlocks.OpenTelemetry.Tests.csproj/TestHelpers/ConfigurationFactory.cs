@@ -7,7 +7,7 @@ internal static class ConfigurationFactory
 {
     public static IConfiguration CreateValidConfiguration()
     {
-        var settings = new Dictionary<string, string?>
+        var settings = new Dictionary<string, string>
         {
             [$"{OpenTelemetryOptions.SectionName}:ServiceNamespace"] = "RetailInventory",
             [$"{OpenTelemetryOptions.SectionName}:ServiceVersion"] = "1.0.0",

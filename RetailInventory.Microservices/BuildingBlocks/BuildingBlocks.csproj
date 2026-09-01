@@ -26,9 +26,5 @@
 		<PackageReference Include="Serilog.Sinks.Seq" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <ProjectReference Include="..\BuildingBlocks.Observability\BuildingBlocks.Observability.csproj" />
-	</ItemGroup>
-
 
 </Project>

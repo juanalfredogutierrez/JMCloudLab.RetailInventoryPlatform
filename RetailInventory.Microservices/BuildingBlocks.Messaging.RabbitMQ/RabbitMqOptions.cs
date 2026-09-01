@@ -1,4 +1,4 @@
-﻿namespace BuildingBlocks.Messaging.RabbiMQ
+﻿namespace BuildingBlocks.Messaging.RabbitMQ
 {
     public class RabbitMqOptions
     {

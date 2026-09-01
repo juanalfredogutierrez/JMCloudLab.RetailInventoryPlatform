@@ -1,4 +1,9 @@
 ﻿
+using BuildingBlocks.Messaging.RabbitMQ;
+using InventarioService.Application.Events.CompraRegistrada;
+using InventarioService.Application.Events.VentaRegistrada;
+using InventarioService.Infrastructure.Messaging;
+
 namespace InventarioService.Infrastructure
 {
     public static class DependencyInjection
@@ -9,6 +14,9 @@ namespace InventarioService.Infrastructure
             services.AddDbContext<InventarioDbContext>(options =>
                 options.UseSqlServer(
                     configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddScoped<CompraRegistradaHandler>();
+            services.AddScoped<VentaRegistradaHandler>();
 
             services.AddHostedService<RabbitMqConsumerWorker>();
             services.AddRabbitMq(configuration);
