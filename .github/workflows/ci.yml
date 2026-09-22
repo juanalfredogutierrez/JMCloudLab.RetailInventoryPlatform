@@ -20,11 +20,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+
   build-and-test:
     name: Build and Test
     runs-on: ubuntu-latest
 
     steps:
+
       - name: Checkout repository
         uses: actions/checkout@v7
 
@@ -53,3 +55,50 @@ jobs:
           path: TestResults
           if-no-files-found: warn
           retention-days: 7
+
+
+  docker-build:
+    name: Docker Build
+    needs: build-and-test
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+
+      matrix:
+        include:
+
+          - name: authservice
+            dockerfile: Infrastructure/Docker/Dockerfiles/AuthService.Dockerfile
+
+          - name: productoservice
+            dockerfile: Infrastructure/Docker/Dockerfiles/ProductoService.Dockerfile
+
+          - name: inventarioservice
+            dockerfile: Infrastructure/Docker/Dockerfiles/InventarioService.Dockerfile
+
+          - name: transaccionservice
+            dockerfile: Infrastructure/Docker/Dockerfiles/TransaccionService.Dockerfile
+
+          - name: gateway
+            dockerfile: Infrastructure/Docker/Dockerfiles/Gateway.Dockerfile
+
+          - name: frontend
+            dockerfile: Infrastructure/Docker/Dockerfiles/Angular.Dockerfile
+
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build ${{ matrix.name }} image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          push: false
+          tags: retailinventory/${{ matrix.name }}:ci
