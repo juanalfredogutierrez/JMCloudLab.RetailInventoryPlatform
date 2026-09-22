@@ -3,12 +3,11 @@ name: CI - RetailInventory
 on:
   push:
     branches:
-      - main
-      - "feature/**"
+      - "feature/message-broker-rabbitmq"
 
   pull_request:
     branches:
-      - main
+       - "feature/message-broker-rabbitmq"
 
   workflow_dispatch:
 
