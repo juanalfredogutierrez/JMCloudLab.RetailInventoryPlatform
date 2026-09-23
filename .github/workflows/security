@@ -120,4 +120,4 @@ jobs:
           severity: HIGH,CRITICAL
           ignore-unfixed: true
           exit-code: 1
-          format: table
+          format: table 
