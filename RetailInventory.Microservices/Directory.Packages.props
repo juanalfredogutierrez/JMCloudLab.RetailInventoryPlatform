@@ -73,5 +73,10 @@
 	<PackageVersion Include="AspNetCore.HealthChecks.SqlServer" Version="8.0.1" />
 
   </ItemGroup>
+  
+<ItemGroup>
+  <PackageVersion Include="Microsoft.Agents.AI" Version="1.21.0" />
+  <PackageVersion Include="Microsoft.Agents.AI.OpenAI" Version="1.21.0" />
+</ItemGroup>
 
 </Project>

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.14.36915.13
+# Visual Studio Version 18
+VisualStudioVersion = 18.10.12201.205 stable
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 EndProject
@@ -50,6 +50,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildingBlocks.OpenTelemetry.Tests", "BuildingBlocks.OpenTelemetry.Tests.csproj\BuildingBlocks.OpenTelemetry.Tests.csproj", "{9187A7C5-ED30-4B91-A8EB-9E731C3E35CC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildingBlocks.Messaging.RabbitMQ", "BuildingBlocks.Messaging.RabbitMQ\BuildingBlocks.Messaging.RabbitMQ.csproj", "{4E409F5C-DDEF-4F5E-9CC5-0ADC1AADB99C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AiAgentService", "AiAgentService\AiAgentService.csproj", "{6628BC2D-33BC-4785-9311-97045C90A280}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -133,6 +135,10 @@ Global
 		{4E409F5C-DDEF-4F5E-9CC5-0ADC1AADB99C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4E409F5C-DDEF-4F5E-9CC5-0ADC1AADB99C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4E409F5C-DDEF-4F5E-9CC5-0ADC1AADB99C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6628BC2D-33BC-4785-9311-97045C90A280}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6628BC2D-33BC-4785-9311-97045C90A280}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6628BC2D-33BC-4785-9311-97045C90A280}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6628BC2D-33BC-4785-9311-97045C90A280}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -160,6 +166,7 @@ Global
 		{31CFBBC2-5F4D-4FD0-8AA1-1C6ECEBF5CC1} = {0B9B6195-0638-4390-9053-7C9B55BEEA08}
 		{9187A7C5-ED30-4B91-A8EB-9E731C3E35CC} = {0B9B6195-0638-4390-9053-7C9B55BEEA08}
 		{4E409F5C-DDEF-4F5E-9CC5-0ADC1AADB99C} = {EE869D5A-4C6F-4663-89BF-6B8A4BDBCB39}
+		{6628BC2D-33BC-4785-9311-97045C90A280} = {92D2A929-4152-41F8-84CC-9CBD3C01CCA6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {197D4ABD-30B0-4E09-9214-684121DB7E0C}
